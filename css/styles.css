@@ -531,21 +531,20 @@ h4          { font-family: var(--font-body);    line-height: 1.3; }
     border: none;
 }
 
-.embed-placeholder {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(145deg, var(--navy-dark) 0%, var(--navy-mid) 100%);
-    gap: 8px;
-    text-align: center;
-    padding: 24px;
+/* Video wrapper */
+.dashboard-video-wrapper {
+    width: 100%;
+    background: #000;
+    overflow: hidden;
+    border-radius: var(--radius) var(--radius) 0 0;
 }
-.embed-icon      { font-size: 2.4rem; color: var(--gold); opacity: 0.85; }
-.embed-label     { font-size: 0.85rem; font-weight: 600; color: rgba(255,255,255,0.75); }
-.embed-hint      { font-size: 0.75rem; color: rgba(255,255,255,0.4); letter-spacing: 0.3px; }
+.dashboard-video {
+    width: 100%;
+    display: block;
+    max-height: 380px;
+    object-fit: contain;
+    background: #000;
+}
 
 .dashboard-info { padding: 22px 24px; flex: 1; display: flex; flex-direction: column; }
 
