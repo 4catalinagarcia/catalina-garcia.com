@@ -864,9 +864,27 @@ h4          { font-family: var(--font-body);    line-height: 1.3; }
     text-transform: uppercase;
 }
 
+.citation-photo-wrapper {
+    margin-top: 40px;
+    padding-top: 36px;
+    border-top: 1px solid var(--gray-light);
+}
+
+.citation-photo {
+    width: 100%;
+    max-width: 560px;
+    margin: 0 auto;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 4px 28px rgba(10, 35, 66, 0.18);
+    border: 6px solid var(--white);
+    outline: 1px solid var(--gray-light);
+    display: block;
+}
+
 @media (max-width: 768px) {
     .citation-document { padding: 36px 24px; }
     .citation-body { padding-left: 10px; }
+    .citation-photo { max-width: 100%; }
 }
 
 /* ============================================================
