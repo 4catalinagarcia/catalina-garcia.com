@@ -741,24 +741,21 @@ h4          { font-family: var(--font-body);    line-height: 1.3; }
 /* ============================================================
    CONTACT
    ============================================================ */
-.contact-grid {
-    display: grid;
-    grid-template-columns: 340px 1fr;
-    gap: 72px;
-    align-items: start;
+.contact-centered {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 20px;
+    max-width: 480px;
+    margin: 0 auto;
 }
 
 .contact-intro {
     font-size: 1rem;
     color: var(--gray-text);
     line-height: 1.75;
-    margin-bottom: 32px;
-}
-
-.contact-info {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+    margin-bottom: 12px;
 }
 
 .contact-item {
@@ -938,7 +935,6 @@ h4          { font-family: var(--font-body);    line-height: 1.3; }
     .about-grid          { grid-template-columns: 1fr; gap: 40px; }
     .portfolio-grid      { grid-template-columns: repeat(2, 1fr); }
     .resume-layout       { grid-template-columns: 1fr; gap: 40px; }
-    .contact-grid        { grid-template-columns: 1fr; gap: 44px; }
 }
 
 /* ============================================================
