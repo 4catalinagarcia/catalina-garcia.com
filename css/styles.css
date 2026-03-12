@@ -579,6 +579,48 @@ h4          { font-family: var(--font-body);    line-height: 1.3; }
     letter-spacing: 0.3px;
 }
 
+/* Coming Soon overlay */
+.portfolio-coming-soon-wrap {
+    position: relative;
+}
+
+.portfolio-coming-soon-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    background: rgba(10, 35, 66, 0.82);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border-radius: var(--radius);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    text-align: center;
+    padding: 40px 24px;
+}
+
+.portfolio-coming-soon-overlay .fas {
+    font-size: 3rem;
+    color: var(--gold);
+    opacity: 0.9;
+}
+
+.coming-soon-label {
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 5vw, 3rem);
+    color: var(--white);
+    letter-spacing: 2px;
+}
+
+.coming-soon-sub {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.65);
+    line-height: 1.75;
+    max-width: 420px;
+}
+
 /* Info callout below grid */
 .embed-callout {
     display: flex;
