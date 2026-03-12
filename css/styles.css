@@ -739,6 +739,137 @@ h4          { font-family: var(--font-body);    line-height: 1.3; }
 .awards-box li strong { color: rgba(255,255,255,0.88); }
 
 /* ============================================================
+   AWARD CITATION
+   ============================================================ */
+.citation-section { background: var(--off-white); }
+
+.citation-document {
+    max-width: 740px;
+    margin: 0 auto;
+    background: var(--white);
+    border: 1px solid var(--gray-light);
+    border-top: 5px solid var(--gold);
+    border-radius: var(--radius);
+    padding: 56px 64px;
+    text-align: center;
+    box-shadow: var(--shadow-md);
+    position: relative;
+}
+
+.citation-seal {
+    font-size: 3rem;
+    color: var(--gold);
+    margin-bottom: 20px;
+}
+
+.citation-issuer {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--navy-mid);
+    margin-bottom: 6px;
+}
+
+.citation-medal-name {
+    font-family: var(--font-heading);
+    font-size: clamp(1.2rem, 3vw, 1.55rem);
+    color: var(--navy-dark);
+    margin-bottom: 32px;
+}
+
+.citation-to-label,
+.citation-cited-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--gray-mid);
+    margin-bottom: 8px;
+}
+
+.citation-cited-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin-bottom: 28px;
+}
+.citation-cited-label::before,
+.citation-cited-label::after {
+    content: '';
+    display: block;
+    width: 50px;
+    height: 1px;
+    background: var(--gray-light);
+}
+
+.citation-recipient {
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    color: var(--navy-dark);
+    margin-bottom: 28px;
+}
+
+.citation-body {
+    font-size: 1rem;
+    color: var(--gray-text);
+    line-height: 1.95;
+    font-style: italic;
+    text-align: left;
+    border: none;
+    padding: 0 0 0 20px;
+    margin-bottom: 44px;
+    position: relative;
+}
+.citation-body::before {
+    content: '\201C';
+    font-family: var(--font-heading);
+    font-size: 6rem;
+    color: var(--gold);
+    opacity: 0.2;
+    position: absolute;
+    top: -28px;
+    left: -10px;
+    line-height: 1;
+    pointer-events: none;
+}
+
+.citation-signature {
+    padding-top: 32px;
+    border-top: 1px solid var(--gray-light);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+.citation-sig-line {
+    width: 180px;
+    height: 1px;
+    background: var(--navy-mid);
+    margin-bottom: 12px;
+}
+.citation-sig-name {
+    font-family: var(--font-heading);
+    font-size: 1.05rem;
+    font-style: italic;
+    color: var(--navy-dark);
+}
+.citation-sig-title,
+.citation-sig-role {
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    color: var(--gray-text);
+    text-transform: uppercase;
+}
+
+@media (max-width: 768px) {
+    .citation-document { padding: 36px 24px; }
+    .citation-body { padding-left: 10px; }
+}
+
+/* ============================================================
    CONTACT
    ============================================================ */
 .contact-centered {
