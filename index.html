@@ -230,15 +230,23 @@
 
                 <!-- ---- DASHBOARD CARD 1 — OPM METRICS ---- -->
                 <div class="dashboard-card fade-up">
-                    <div class="dashboard-video-wrapper">
-                        <video
-                            controls
-                            preload="metadata"
-                            class="dashboard-video"
-                            aria-label="OPM Metrics Dashboard Demo">
-                            <source src="assets/videos/OPM_Metrics_Dashboard_Demo.mp4" type="video/mp4">
-                            Your browser does not support the video tag.
-                        </video>
+                    <div class="card-media-slider">
+                        <div class="card-media-viewport">
+                            <div class="card-media-track">
+                                <div class="card-slide">
+                                    <img src="assets/images/OPM_Dashboard_Metrics.jpg" alt="OPM Metrics Dashboard screenshot" class="dashboard-image lightbox-trigger" title="Click to enlarge">
+                                </div>
+                                <div class="card-slide card-slide-video">
+                                    <video controls preload="metadata" class="dashboard-video" aria-label="OPM Metrics Dashboard Demo">
+                                        <source src="assets/videos/OPM_Metrics_Dashboard_Demo.mp4" type="video/mp4">
+                                    </video>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slide-tabs">
+                            <button class="slide-tab active" data-slide="0">Screenshot</button>
+                            <button class="slide-tab" data-slide="1">&#9654; Demo</button>
+                        </div>
                     </div>
                     <div class="dashboard-info">
                         <h3 class="dashboard-title">OPM Metrics Dashboard</h3>
@@ -248,15 +256,23 @@
 
                 <!-- ---- DASHBOARD CARD 2 — OPM SERIES ---- -->
                 <div class="dashboard-card fade-up" style="transition-delay:0.1s">
-                    <div class="dashboard-video-wrapper">
-                        <video
-                            controls
-                            preload="metadata"
-                            class="dashboard-video"
-                            aria-label="OPM Series Dashboard Demo">
-                            <source src="assets/videos/OPM_Series_Dashboard_Demo.mp4" type="video/mp4">
-                            Your browser does not support the video tag.
-                        </video>
+                    <div class="card-media-slider">
+                        <div class="card-media-viewport">
+                            <div class="card-media-track">
+                                <div class="card-slide">
+                                    <img src="assets/images/OPM_Dashboard_Series.jpg" alt="OPM Series Dashboard screenshot" class="dashboard-image lightbox-trigger" title="Click to enlarge">
+                                </div>
+                                <div class="card-slide card-slide-video">
+                                    <video controls preload="metadata" class="dashboard-video" aria-label="OPM Series Dashboard Demo">
+                                        <source src="assets/videos/OPM_Series_Dashboard_Demo.mp4" type="video/mp4">
+                                    </video>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slide-tabs">
+                            <button class="slide-tab active" data-slide="0">Screenshot</button>
+                            <button class="slide-tab" data-slide="1">&#9654; Demo</button>
+                        </div>
                     </div>
                     <div class="dashboard-info">
                         <h3 class="dashboard-title">OPM Series Dashboard</h3>
@@ -264,17 +280,36 @@
                     </div>
                 </div>
 
-                <!-- ---- DASHBOARD CARD 3 — IMDB ---- -->
+                <!-- ---- DASHBOARD CARD 3 — OPTIMIZATION ---- -->
                 <div class="dashboard-card fade-up" style="transition-delay:0.2s">
-                    <div class="dashboard-video-wrapper">
-                        <video
-                            controls
-                            preload="metadata"
-                            class="dashboard-video"
-                            aria-label="IMDB Dashboard Demo">
-                            <source src="assets/videos/IMDB_Dashboard_Demo.mp4" type="video/mp4">
-                            Your browser does not support the video tag.
-                        </video>
+                    <div class="dashboard-image-wrapper">
+                        <img src="assets/images/Optimization_Dashboard.jpg" alt="COA Cost Matrix and Optimization Dashboard" class="dashboard-image lightbox-trigger" title="Click to enlarge">
+                    </div>
+                    <div class="dashboard-info">
+                        <h3 class="dashboard-title">COA Cost Matrix &amp; Optimization</h3>
+                        <p class="dashboard-desc">Linear programming model optimizing shipment routing across 18 discharge ports — minimizing total cost while satisfying group constraints and minimum demand requirements.</p>
+                    </div>
+                </div>
+
+                <!-- ---- DASHBOARD CARD 4 — IMDB ---- -->
+                <div class="dashboard-card fade-up" style="transition-delay:0.3s">
+                    <div class="card-media-slider">
+                        <div class="card-media-viewport">
+                            <div class="card-media-track">
+                                <div class="card-slide">
+                                    <img src="assets/images/IMDB_Dashboard.jpg" alt="IMDB Dashboard screenshot" class="dashboard-image lightbox-trigger" title="Click to enlarge">
+                                </div>
+                                <div class="card-slide card-slide-video">
+                                    <video controls preload="metadata" class="dashboard-video" aria-label="IMDB Dashboard Demo">
+                                        <source src="assets/videos/IMDB_Dashboard_Demo.mp4" type="video/mp4">
+                                    </video>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slide-tabs">
+                            <button class="slide-tab active" data-slide="0">Screenshot</button>
+                            <button class="slide-tab" data-slide="1">&#9654; Demo</button>
+                        </div>
                     </div>
                     <div class="dashboard-info">
                         <h3 class="dashboard-title">IMDB Dashboard</h3>
@@ -469,6 +504,12 @@
             <p class="footer-copy">&copy; 2026 Catalina Garcia. All rights reserved.</p>
         </div>
     </footer>
+
+    <!-- Lightbox Modal -->
+    <div id="lightbox" class="lightbox" role="dialog" aria-modal="true" aria-label="Image preview">
+        <button class="lightbox-close" id="lightboxClose" aria-label="Close preview">&times;</button>
+        <img src="" alt="" class="lightbox-img" id="lightboxImg">
+    </div>
 
     <script src="js/main.js"></script>
 </body>
