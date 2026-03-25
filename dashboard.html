@@ -1,0 +1,1066 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>COA Cost Matrix &amp; Optimization</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: {
+              50:  '#eef2ff',
+              100: '#dde6ff',
+              700: '#1e3a8a',
+              800: '#162d6b',
+              900: '#0f1f4a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <script src="https://unpkg.com/javascript-lp-solver@0.4.24/prod/solver.js"></script>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+    .cell-edit { width:100%; background:transparent; border:none; outline:none; text-align:center; font-size:11px; }
+    td, th { white-space: nowrap; }
+    .tbl-scroll { overflow-x: auto; display: flex; justify-content: center; }
+    input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .sticky-lane { position: sticky; left: 0; z-index: 2; }
+    .sticky-head-lane { position: sticky; left: 0; z-index: 3; }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useCallback, useRef } = React;
+
+    /* ─────────────────────────────────────────────
+       DATA CONSTANTS
+    ───────────────────────────────────────────── */
+    const LANES = [
+      'EDF-2018 / Almeria',
+      'EDF-2018 / Garrucha',
+      'Norden / Almeria',
+      'Norden / Garrucha',
+      'Norden-Optionals / Almeria',
+      'Norden-Optionals / Garrucha',
+      'PB-2016 / Almeria',
+      'PB-2016 / Garrucha',
+      'PB-2019 / Almeria',
+      'PB-2019 / Garrucha',
+      'Phoenix / Almeria',
+      'Phoenix / Garrucha',
+    ];
+
+    const DESTINATIONS = [
+      'Baltimore-Rukert',
+      'Bristol',
+      'Buchanan',
+      'Camden',
+      'Cementon',
+      'Charleston (Carver)',
+      'Charleston (KMI)',
+      'Charleston (Pier J)',
+      'Coeymans',
+      'Jacksonville',
+      'Montreal',
+      'Newington',
+      'Norfolk',
+      'Port Everglades',
+      'Port Manatee',
+      'Savannah',
+      'Searsport',
+      'Tampa',
+    ];
+
+    const NL = LANES.length;        // 12
+    const ND = DESTINATIONS.length; // 18
+    const BIG_M = 999;
+
+    /*
+      Cost matrix ($/MT) – 12 lanes × 18 destinations.
+      999 = impossible route (Big-M).
+
+      Based on representative COA freight rates from
+      Spanish ports (Almeria / Garrucha) to US East Coast / Gulf.
+      Routes marked 999 reflect vessel draft / COA lane restrictions.
+    */
+    const INITIAL_COSTS = [
+      // Cols: BaltRukert  Bristol  Buchanan  Camden  Cementon  Chrl-Carver  Chrl-KMI  Chrl-PierJ  Coeymans  Jacksonville  Montreal  Newington  Norfolk  PtEverglades  PtManatee  Savannah  Searsport  Tampa
+      // EDF-2018 / Almeria
+      [10.60, 12.50, 12.95, 11.70, 14.25, 15.45, 999,   13.05, 999,   12.00, 999,    999,   999,   10.95, 999,   13.35, 11.25, 13.55],
+      // EDF-2018 / Garrucha
+      [10.35, 12.25, 12.70, 11.45, 14.00, 15.20, 999,   12.80, 999,   11.75, 999,    999,   999,   10.70, 999,   13.10, 11.00, 13.30],
+      // Norden / Almeria
+      [10.60, 12.10, 12.70, 12.25, 14.75, 999,   12.10, 11.70, 15.85, 10.85, 13.90, 12.50, 14.00, 10.75, 11.95, 12.00, 11.85, 999  ],
+      // Norden / Garrucha
+      [10.60, 12.10, 12.70, 12.25, 14.75, 999,   12.10, 11.70, 15.85, 10.85, 13.90, 12.50, 14.00, 10.75, 11.95, 12.00, 11.85, 999  ],
+      // Norden-Optionals / Almeria
+      [10.60, 12.10, 12.70, 12.25, 14.75, 999,   12.10, 11.70, 15.85, 10.85, 13.90, 12.50, 14.00, 10.75, 11.95, 12.00, 11.85, 999  ],
+      // Norden-Optionals / Garrucha
+      [10.60, 12.10, 12.70, 12.25, 14.75, 999,   12.10, 11.70, 15.85, 10.85, 13.90, 12.50, 14.00, 10.75, 11.95, 12.00, 11.85, 999  ],
+      // PB-2016 / Almeria
+      [999,   999,   999,    9.29, 999,   999,   999,   999,   999,   999,   999,    8.42, 999,   999,   999,    8.22, 999,    999  ],
+      // PB-2016 / Garrucha
+      [999,   999,   999,    9.29, 999,   999,   999,   999,   999,   999,   999,    8.42, 999,   999,   999,    8.22, 999,    999  ],
+      // PB-2019 / Almeria
+      [999,   999,   999,    9.90, 999,   999,   999,    9.78, 999,   999,   999,    9.50, 999,   999,   999,    8.65, 999,    999  ],
+      // PB-2019 / Garrucha
+      [999,   999,   999,    9.90, 999,   999,   999,    9.78, 999,   999,   999,    9.50, 999,   999,   999,    8.65, 999,    999  ],
+      // Phoenix / Almeria
+      [999,   999,   999,    9.95, 999,   999,   999,   10.40, 999,   999,   12.75,  9.50, 999,   999,   999,    8.65, 999,    999  ],
+      // Phoenix / Garrucha
+      [999,   999,   999,    9.95, 999,   999,   999,   10.40, 999,   999,   12.75,  9.50, 999,   999,   999,    8.65, 999,    999  ],
+    ];
+
+    // Minimum shipment demand per destination
+    const INITIAL_DEMANDS = [0, 2, 7, 1, 0, 0, 0, 3, 1, 1, 0, 6, 0, 1, 0, 6, 1, 0];
+    // Sum = 29
+
+    // COA groups: each pair of (Almeria, Garrucha) lanes
+    const INIT_GROUPS = [
+      { name: 'EDF-2018',          laneStart: 0,  min: 8,  max: 8  },
+      { name: 'Norden',            laneStart: 2,  min: 8,  max: 8  },
+      { name: 'Norden-Optionals',  laneStart: 4,  min: 0,  max: 2  },
+      { name: 'PB-2016',           laneStart: 6,  min: 7,  max: 9  },
+      { name: 'PB-2019',           laneStart: 8,  min: 2,  max: 3  },
+      { name: 'Phoenix',           laneStart: 10, min: 0,  max: 1  },
+    ];
+
+    /* ─────────────────────────────────────────────
+       OPTIMIZATION ENGINE  –  ILP via javascript-lp-solver
+       Replicates the R lpSolve formulation exactly:
+         Minimise  Σ cost[i,j] · x[i,j]
+         s.t.      Σ_i x[i,j]  >= demand[j]   ∀ j   (demand)
+                   Σ_j x[i,j]  summed over group lanes ∈ [min, max]  (group)
+                   x[i,j] ∈ ℤ⁺,  x[i,j] = 0 if cost = BIG_M
+    ───────────────────────────────────────────── */
+    function getGroupIdx(laneIdx) { return Math.floor(laneIdx / 2); }
+
+    function solve(costs, demands, groups) {
+      // Variable names: x_i_j  (lane i, destination j)
+      const varName = (i, j) => `x_${i}_${j}`;
+
+      // Build model object for javascript-lp-solver
+      const model = {
+        optimize: 'cost',
+        opType: 'min',
+        constraints: {},
+        variables: {},
+        ints: {},
+      };
+
+      // Declare variables and objective coefficients
+      for (let i = 0; i < NL; i++) {
+        for (let j = 0; j < ND; j++) {
+          if (costs[i][j] >= BIG_M) continue; // impossible route – skip
+          const name = varName(i, j);
+          model.variables[name] = { cost: costs[i][j] };
+          model.ints[name] = 1; // integer constraint
+          // Tag for demand constraint (column j)
+          model.variables[name][`dem_${j}`] = 1;
+          // Tag for group constraint (group k)
+          const k = getGroupIdx(i);
+          model.variables[name][`grp_${k}`] = 1;
+        }
+      }
+
+      // Demand constraints: Σ_i x[i,j] >= demand[j]
+      for (let j = 0; j < ND; j++) {
+        if (demands[j] > 0) {
+          model.constraints[`dem_${j}`] = { min: demands[j] };
+        }
+      }
+
+      // Group constraints: min <= Σ x[group lanes, j] <= max
+      for (let k = 0; k < groups.length; k++) {
+        const { min, max } = groups[k];
+        model.constraints[`grp_${k}`] = { min, max };
+      }
+
+      const result = solver.Solve(model);
+
+      if (!result.feasible) {
+        throw new Error('No feasible solution found. Check demand and group constraints.');
+      }
+
+      // Extract solution matrix
+      const x = Array.from({ length: NL }, () => new Array(ND).fill(0));
+      for (let i = 0; i < NL; i++) {
+        for (let j = 0; j < ND; j++) {
+          const v = result[varName(i, j)];
+          if (v) x[i][j] = Math.round(v);
+        }
+      }
+
+      // Compute group usage and totals
+      const gUsed = new Array(groups.length).fill(0);
+      let totalW = 0, totalS = 0;
+      for (let i = 0; i < NL; i++) {
+        for (let j = 0; j < ND; j++) {
+          if (x[i][j] > 0) {
+            gUsed[getGroupIdx(i)] += x[i][j];
+            totalW += x[i][j] * costs[i][j];
+            totalS += x[i][j];
+          }
+        }
+      }
+
+      return {
+        solution: x,
+        objective: totalS > 0 ? totalW / totalS : 0,
+        gUsed,
+        totalShipments: totalS,
+      };
+    }
+
+    /* ─────────────────────────────────────────────
+       HELPERS
+    ───────────────────────────────────────────── */
+    const fmt2   = v => (typeof v === 'number' ? v.toFixed(2) : v);
+    const fmtUSD = v => '$' + Number(v).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+
+    /* ─────────────────────────────────────────────
+       COST MATRIX TABLE
+    ───────────────────────────────────────────── */
+    function CostMatrixTable({ costs, setCosts, demands, setDemands }) {
+      const [editKey, setEditKey] = useState(null);
+      const inputRef = useRef(null);
+
+      const commitEdit = (i, j, raw) => {
+        const v = parseFloat(raw);
+        if (!isNaN(v)) {
+          const next = costs.map(r => [...r]);
+          next[i][j] = v;
+          setCosts(next);
+        }
+        setEditKey(null);
+      };
+
+      const commitDemand = (j, raw) => {
+        const v = parseInt(raw);
+        const next = [...demands];
+        next[j] = isNaN(v) ? 0 : Math.max(0, v);
+        setDemands(next);
+      };
+
+      return (
+        <div>
+        <div className="tbl-scroll">
+          <table className="border-collapse text-[11px]">
+            <thead>
+              <tr>
+                <th className="sticky-head-lane bg-navy-900 text-white px-2 py-1.5 text-left text-xs min-w-[150px] border border-navy-700">
+                  COA / Origin → Destination
+                </th>
+                {DESTINATIONS.map((d, j) => (
+                  <th key={j}
+                    className="bg-navy-800 text-white px-1 py-1.5 text-center font-medium min-w-[72px] border border-navy-700 text-[10px]"
+                    title={d}
+                  >
+                    {d}
+                  </th>
+                ))}
+                <th className="bg-navy-800 text-white px-1 py-1.5 text-center font-medium min-w-[72px] border border-navy-700 text-[10px]">
+                  Total
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {LANES.map((lane, i) => {
+                const isAlt = i % 2 !== 0;
+                const rowBg = isAlt ? 'bg-slate-50' : 'bg-white';
+                return (
+                  <tr key={i} className={rowBg}>
+                    <td className={`sticky-lane ${rowBg} border border-gray-200 px-2 py-0.5 font-semibold text-navy-800 min-w-[150px]`}>
+                      {lane}
+                    </td>
+                    {DESTINATIONS.map((_, j) => {
+                      const val  = costs[i][j];
+                      const bigM = val >= BIG_M;
+                      const key  = `${i}-${j}`;
+                      return (
+                        <td
+                          key={j}
+                          onClick={() => setEditKey(key)}
+                          className={`border border-gray-200 p-0 text-center cursor-pointer hover:bg-blue-50
+                            ${bigM ? 'bg-gray-300 text-gray-500 font-bold' : 'text-gray-700'}`}
+                        >
+                          {editKey === key ? (
+                            <input
+                              ref={inputRef}
+                              className="cell-edit w-[64px] py-0.5 px-1"
+                              defaultValue={val}
+                              autoFocus
+                              onBlur={e  => commitEdit(i, j, e.target.value)}
+                              onKeyDown={e => {
+                                if (e.key === 'Enter')  commitEdit(i, j, e.target.value);
+                                if (e.key === 'Escape') setEditKey(null);
+                              }}
+                            />
+                          ) : (
+                            <span className="px-1 py-0.5 block">
+                              {bigM ? '999' : fmt2(val)}
+                            </span>
+                          )}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                );
+              })}
+
+              {/* ── Spacer ── */}
+              <tr className="bg-gray-200">
+                <td colSpan={ND + 2} className="py-2 border-0"></td>
+              </tr>
+
+              {/* ── Demand row ── */}
+              <tr className="bg-red-700 text-white">
+                <td className="sticky-lane bg-red-700 text-white px-2 py-1.5 font-bold border border-red-600 text-xs">
+                  Demand Minimum
+                </td>
+                {demands.map((d, j) => (
+                  <td key={j} className="border border-red-300 p-0 text-center bg-red-100 cursor-pointer hover:bg-red-200 transition-colors">
+                    <input
+                      className="cell-edit w-[64px] py-0.5 text-red-700 font-bold bg-transparent cursor-pointer"
+                      value={d}
+                      onChange={e => commitDemand(j, e.target.value)}
+                    />
+                  </td>
+                ))}
+                <td className="border border-red-600 text-center py-0.5 font-bold font-mono min-w-[72px]">
+                  {demands.reduce((s, d) => s + d, 0)}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p className="text-[10px] text-gray-400 mt-1 text-center">
+          Click any cell to edit. Enter 999 for impossible routes. Demand row is editable.
+        </p>
+        </div>
+      );
+    }
+
+    /* ─────────────────────────────────────────────
+       DECISION VARIABLES TABLE
+    ───────────────────────────────────────────── */
+    function DecisionTable({ solution, demands, costs }) {
+      if (!solution) {
+        return (
+          <div className="flex flex-col items-center justify-center py-16 text-gray-400 gap-3">
+            <svg className="w-12 h-12 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                d="M9 7h6m0 10H9m3-15v2m0 16v-2M5.2 5.2l1.4 1.4M17.4 17.4l1.4 1.4M4 12H2m20 0h-2M5.2 18.8l1.4-1.4M17.4 6.6l1.4-1.4"/>
+            </svg>
+            <p className="font-medium">No solution yet</p>
+            <p className="text-sm">Click <strong className="text-navy-800">▶ Solve</strong> to run the optimization</p>
+          </div>
+        );
+      }
+
+      const colSums = Array.from({length: ND}, (_, j) =>
+        solution.reduce((s, row) => s + row[j], 0));
+
+      return (
+        <div className="tbl-scroll">
+          <table className="border-collapse text-[11px]">
+            <thead>
+              <tr>
+                <th className="sticky-head-lane bg-navy-900 text-white px-2 py-1.5 text-left text-xs min-w-[150px] border border-navy-700">
+                  COA / Origin → Destination
+                </th>
+                {DESTINATIONS.map((d, j) => (
+                  <th key={j}
+                    className="bg-navy-800 text-white px-1 py-1.5 text-center font-medium min-w-[72px] border border-navy-700 text-[10px]"
+                    title={d}
+                  >
+                    {d}
+                  </th>
+                ))}
+                <th className="bg-navy-800 text-white px-2 py-1.5 text-center font-medium border border-navy-700 text-[10px]">
+                  COA Cost
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {solution.map((row, i) => {
+                const rowCost = row.reduce((s, v, j) => s + (costs && costs[i][j] < BIG_M ? v * costs[i][j] : 0), 0);
+                const isAlt = i % 2 !== 0;
+                const rowBg = isAlt ? 'bg-slate-50' : 'bg-white';
+                return (
+                  <tr key={i} className={rowBg}>
+                    <td className={`sticky-lane ${rowBg} border border-gray-200 px-2 py-0.5 font-semibold text-navy-800`}>
+                      {LANES[i]}
+                    </td>
+                    {row.map((val, j) => (
+                      <td key={j}
+                        className={`border border-gray-200 text-center py-0.5 font-mono
+                          ${val > 0 ? 'bg-yellow-100 text-gray-900 font-bold' : 'text-gray-200'}`}
+                      >
+                        {val > 0 ? val : ''}
+                      </td>
+                    ))}
+                    <td className={`border border-gray-300 text-center py-0.5 font-bold font-mono ${rowCost > 0 ? 'text-navy-800' : 'text-gray-300'}`}>
+                      {rowCost > 0 ? `$${rowCost.toFixed(2)}` : ''}
+                    </td>
+                  </tr>
+                );
+              })}
+
+              {/* ── Demand Minimum ── */}
+              <tr className="bg-red-700 text-white">
+                <td className="sticky-lane bg-red-700 text-white px-2 py-0.5 font-bold border border-red-600 text-xs">
+                  Demand Minimum
+                </td>
+                {demands.map((d, j) => (
+                  <td key={j} className="border border-red-600 text-center py-0.5 font-bold font-mono">
+                    {d}
+                  </td>
+                ))}
+                <td className="border border-red-600 text-center font-bold">
+                  {demands.reduce((s, d) => s + d, 0)}
+                </td>
+              </tr>
+
+              {/* ── Demand Optimized ── */}
+              <tr className="bg-navy-800 text-white">
+                <td className="sticky-lane bg-navy-800 text-white px-2 py-0.5 font-bold border border-navy-700 text-xs">
+                  Demand (Optimized)
+                </td>
+                {colSums.map((s, j) => (
+                  <td key={j} className="border border-navy-700 text-center py-0.5 font-bold font-mono">
+                    {s}
+                  </td>
+                ))}
+                <td className="border border-navy-700 text-center font-bold font-mono text-[10px]">
+                  ${solution.reduce((t, row, i) => t + row.reduce((s, v, j) => s + (costs && costs[i][j] < BIG_M ? v * costs[i][j] : 0), 0), 0).toFixed(2)}
+                </td>
+              </tr>
+
+              {/* ── Validation ── */}
+              <tr className="bg-gray-100">
+                <td className="sticky-lane bg-gray-100 text-gray-700 px-2 py-0.5 font-bold border border-gray-300 text-xs">
+                  Validation Check
+                </td>
+                {demands.map((d, j) => {
+                  const ok = colSums[j] >= d;
+                  return (
+                    <td key={j}
+                      className={`border border-gray-300 text-center py-0.5 text-[10px] font-bold
+                        ${ok ? 'text-green-700 bg-green-50' : 'text-red-600 bg-red-50'}`}
+                    >
+                      {ok ? 'TRUE' : 'FALSE'}
+                    </td>
+                  );
+                })}
+                <td className={`border border-gray-300 text-center text-xs font-bold
+                  ${demands.every((d, j) => colSums[j] >= d) ? 'text-green-700' : 'text-red-600'}`}>
+                  {demands.every((d, j) => colSums[j] >= d) ? '✓ ALL OK' : '✗ FAIL'}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+
+    /* ─────────────────────────────────────────────
+       GROUP CONSTRAINTS TABLE
+    ───────────────────────────────────────────── */
+    function GroupConstraintsTable({ groups, setGroups, solution }) {
+      const gUsedFromSolution = solution
+        ? groups.map((g, k) => {
+            const i0 = g.laneStart, i1 = g.laneStart + 1;
+            return solution[i0].reduce((s, v) => s + v, 0)
+                 + solution[i1].reduce((s, v) => s + v, 0);
+          })
+        : null;
+
+      const update = (k, field, raw) => {
+        const v = parseInt(raw);
+        setGroups(prev => prev.map((g, i) =>
+          i === k ? { ...g, [field]: isNaN(v) ? 0 : Math.max(0, v) } : g
+        ));
+      };
+
+      return (
+        <div className="flex flex-col items-center">
+          <table className="border-collapse text-xs max-w-2xl">
+            <thead>
+              <tr className="bg-navy-900 text-white">
+                <th className="px-3 py-2 text-left border border-navy-700">Group (COA)</th>
+                <th className="px-3 py-2 text-center border border-navy-700 min-w-[80px]">MIN SHIPMENTS</th>
+                <th className="px-3 py-2 text-center border border-navy-700 min-w-[80px]">MAX SHIPMENTS</th>
+                {solution && <th className="px-3 py-2 text-center border border-navy-700">OPTIMIZED</th>}
+                {solution && <th className="px-3 py-2 text-center border border-navy-700">STATUS</th>}
+              </tr>
+            </thead>
+            <tbody>
+              {groups.map((g, k) => {
+                const used  = gUsedFromSolution ? gUsedFromSolution[k] : null;
+                const ok    = used !== null && used >= g.min && used <= g.max;
+                const isAlt = k % 2 !== 0;
+                return (
+                  <tr key={k} className={isAlt ? 'bg-slate-50' : 'bg-white'}>
+                    <td className="border border-gray-200 px-3 py-1.5 font-semibold text-navy-800">{g.name}</td>
+                    <td className="border border-gray-200 p-0 text-center cursor-pointer hover:bg-blue-50 transition-colors">
+                      <input
+                        className="cell-edit py-1.5 w-20 text-center font-bold text-navy-700 cursor-pointer"
+                        value={g.min}
+                        onChange={e => update(k, 'min', e.target.value)}
+                      />
+                    </td>
+                    <td className="border border-gray-200 p-0 text-center cursor-pointer hover:bg-blue-50 transition-colors">
+                      <input
+                        className="cell-edit py-1.5 w-20 text-center font-bold text-navy-700 cursor-pointer"
+                        value={g.max}
+                        onChange={e => update(k, 'max', e.target.value)}
+                      />
+                    </td>
+                    {solution && (
+                      <td className={`border border-gray-200 text-center py-1 font-bold font-mono
+                        ${ok ? 'text-green-700' : 'text-red-600'}`}>
+                        {used}
+                      </td>
+                    )}
+                    {solution && (
+                      <td className={`border border-gray-200 text-center py-1 text-[11px] font-bold
+                        ${ok ? 'text-green-600 bg-green-50' : 'text-red-600 bg-red-50'}`}>
+                        {ok ? '✓ OK' : '✗ Violation'}
+                      </td>
+                    )}
+                  </tr>
+                );
+              })}
+              {/* Totals */}
+              <tr className="bg-navy-900 text-white font-bold">
+                <td className="px-3 py-1.5 border border-navy-700">Totals</td>
+                <td className="text-center py-1 border border-navy-700 font-mono">
+                  {groups.reduce((s, g) => s + g.min, 0)}
+                </td>
+                <td className="text-center py-1 border border-navy-700 font-mono">
+                  {groups.reduce((s, g) => s + g.max, 0)}
+                </td>
+                {solution && (
+                  <td className="text-center py-1 border border-navy-700 font-mono">
+                    {gUsedFromSolution ? gUsedFromSolution.reduce((s, v) => s + v, 0) : ''}
+                  </td>
+                )}
+                {solution && <td className="border border-navy-700"></td>}
+              </tr>
+            </tbody>
+          </table>
+          <p className="text-[10px] text-gray-400 mt-2">
+            MIN / MAX cells are editable. These define the allowable shipment range per COA contract group.
+          </p>
+        </div>
+      );
+    }
+
+    /* ─────────────────────────────────────────────
+       METRICS PANEL
+    ───────────────────────────────────────────── */
+    function MetricsPanel({ objective, metricTons, setMetricTons, solution, costs }) {
+      const [tonInput, setTonInput] = React.useState(metricTons.toLocaleString());
+      const hasResult  = objective != null;
+      const sumproduct = hasResult
+        ? solution.reduce((total, row, i) =>
+            total + row.reduce((s, v, j) => s + (costs[i][j] < BIG_M ? costs[i][j] * v : 0), 0), 0)
+        : 0;
+      const totalCost  = hasResult ? sumproduct * metricTons : 0;
+      const totalShips = solution
+        ? solution.reduce((s, r) => s + r.reduce((a, v) => a + v, 0), 0)
+        : 0;
+      const demandSum  = hasResult ? solution[0].length : 0;
+
+      return (
+        <div className="bg-white rounded-lg shadow-md p-4">
+          <div className="flex items-center justify-between mb-3 border-b border-navy-800 pb-2">
+            <h3 className="text-base font-bold text-navy-900 uppercase tracking-wide">Optimization Results</h3>
+            <p className="text-[10px] text-gray-400">COA Freight Cost Metrics</p>
+          </div>
+
+          <div className="flex flex-wrap gap-3 items-start">
+
+            {/* Metric Tons input */}
+            <div className="flex-1 min-w-[160px]">
+              <label className="text-[11px] font-semibold text-gray-500 uppercase tracking-wide block mb-1">Metric Tons Shipped</label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  className="flex-1 border border-gray-300 rounded px-2 py-1.5 text-sm font-mono focus:border-navy-700 focus:outline-none"
+                  value={tonInput}
+                  onChange={e => setTonInput(e.target.value.replace(/[^0-9,]/g, ''))}
+                  onKeyDown={e => { if (e.key === 'Enter') { const n = parseInt(tonInput.replace(/,/g,'')) || 0; setMetricTons(n); setTonInput(n.toLocaleString()); } }}
+                />
+                <button
+                  onClick={() => { const n = parseInt(tonInput.replace(/,/g,'')) || 0; setMetricTons(n); setTonInput(n.toLocaleString()); }}
+                  className="px-3 py-1.5 bg-navy-800 hover:bg-navy-700 text-white rounded text-xs font-medium"
+                >Apply</button>
+              </div>
+            </div>
+
+            {/* Optimized Cost */}
+            <div className={`rounded-lg p-3 flex-1 min-w-[140px] ${hasResult ? 'bg-navy-50 border border-navy-100' : 'bg-gray-50'}`}>
+              <div className="text-[10px] text-gray-400 uppercase tracking-wide font-semibold mb-1">Optimized Cost</div>
+              <div className={`text-xl font-bold font-mono ${hasResult ? 'text-navy-800' : 'text-gray-300'}`}>
+                {hasResult ? `$${sumproduct.toFixed(2)}` : '—'}
+              </div>
+              <div className="text-[10px] text-gray-400 mt-0.5">{hasResult ? '$/MT (raw sum)' : 'run solver first'}</div>
+            </div>
+
+            {/* Total Cost */}
+            <div className={`rounded-lg p-3 flex-1 min-w-[160px] ${hasResult ? 'bg-green-50 border border-green-100' : 'bg-gray-50'}`}>
+              <div className="text-[10px] text-gray-400 uppercase tracking-wide font-semibold mb-1">Total Cost</div>
+              <div className={`text-xl font-bold ${hasResult ? 'text-green-800' : 'text-gray-300'}`}>
+                {hasResult ? fmtUSD(totalCost) : '—'}
+              </div>
+              {hasResult && (
+                <div className="text-[10px] text-gray-400 mt-0.5">{`$${sumproduct.toFixed(2)} × ${metricTons.toLocaleString()} MT`}</div>
+              )}
+            </div>
+
+            {/* Stats */}
+            {solution && (
+              <div className="flex-1 min-w-[140px] space-y-1.5 pt-1">
+                <div className="flex justify-between text-xs">
+                  <span className="text-gray-500">Total Shipments</span>
+                  <span className="font-bold text-navy-800 font-mono">{totalShips}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-gray-500">Lanes Used</span>
+                  <span className="font-bold text-navy-800 font-mono">{solution.filter(r => r.some(v => v > 0)).length} / {NL}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-gray-500">Routes Used</span>
+                  <span className="font-bold text-navy-800 font-mono">{solution.reduce((s, r) => s + r.filter(v => v > 0).length, 0)} / {NL * ND}</span>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    /* ─────────────────────────────────────────────
+       MAIN APP
+    ───────────────────────────────────────────── */
+    function App() {
+      const [costs,      setCosts]      = useState(() => INITIAL_COSTS.map(r => [...r]));
+      const [demands,    setDemands]    = useState([...INITIAL_DEMANDS]);
+      const [groups,     setGroups]     = useState(INIT_GROUPS.map(g => ({...g})));
+      const [solution,   setSolution]   = useState(null);
+      const [objective,  setObjective]  = useState(null);
+      const [metricTons, setMetricTons] = useState(50000);
+      const [pctInput,   setPctInput]   = useState(0);
+      const [status,     setStatus]     = useState('');
+      const [solving,    setSolving]    = useState(false);
+      const [activeTab,  setActiveTab]  = useState('cost');
+
+      const handleSolve = () => {
+        setSolving(true);
+        setStatus('Running optimizer…');
+        // Defer so React can render the loading state first
+        setTimeout(() => {
+          try {
+            const res = solve(costs, demands, groups);
+            setSolution(res.solution);
+            setObjective(res.objective);
+            setStatus(`Solved  ·  ${res.totalShipments} shipments`);
+            setActiveTab('decision');
+          } catch (err) {
+            setStatus('Error: ' + err.message);
+          } finally {
+            setSolving(false);
+          }
+        }, 30);
+      };
+
+      const handleApplyPct = () => {
+        const pct = parseFloat(pctInput);
+        if (isNaN(pct) || pct === 0) return;
+        const factor = 1 + pct / 100;
+        setCosts(prev => prev.map(r => r.map(c => c >= BIG_M ? c : parseFloat((c * factor).toFixed(2)))));
+      };
+
+      const handleReset = () => {
+        setCosts(INITIAL_COSTS.map(r => [...r]));
+        setDemands([...INITIAL_DEMANDS]);
+        setGroups(INIT_GROUPS.map(g => ({...g})));
+        setSolution(null);
+        setObjective(null);
+        setPctInput('');
+        setStatus('');
+
+      };
+
+
+      return (
+        <div className="min-h-screen bg-gray-100">
+
+          {/* ── Header ── */}
+          <header className="bg-navy-900 text-white shadow-xl sticky top-0 z-50">
+            <div className="px-6 py-4 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-4 flex-shrink-0">
+                <img src="assets/images/FAULogo.png" alt="FAU Logo" className="h-14 w-auto object-contain" />
+              </div>
+              <div className="text-center flex-1">
+                <h1 className="text-xl font-bold tracking-tight leading-tight">
+                  COA Cost Matrix &amp; Optimization
+                </h1>
+                <p className="text-blue-300 text-xs mt-1">
+                  Contract of Affreightment · 12 Lanes × 18 Destinations · LP Integer Optimization
+                </p>
+                {status && (
+                  <p className="text-yellow-300 text-xs mt-1 font-mono">{status}</p>
+                )}
+              </div>
+              <div className="flex items-center gap-4 flex-shrink-0">
+                <img src="assets/images/IMI Logo.jpg" alt="International Materials Logo" className="h-12 w-auto object-contain bg-white rounded px-2 py-1" />
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <a
+                  href="landing.html"
+                  className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-gray-200 rounded text-xs font-medium"
+                >
+                  🏆 Competition
+                </a>
+                <a
+                  href="reference.html"
+                  className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-gray-200 rounded text-xs font-medium"
+                >
+                  📖 Reference
+                </a>
+                <button
+                  onClick={handleReset}
+                  className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-gray-200 rounded text-xs font-medium"
+                >
+                  Reset
+                </button>
+                <button
+                  onClick={handleSolve}
+                  disabled={solving}
+                  className={`px-5 py-1.5 rounded font-bold text-sm shadow-lg transition-colors
+                    ${solving
+                      ? 'bg-yellow-600 text-yellow-100 cursor-wait'
+                      : 'bg-yellow-400 hover:bg-yellow-300 text-navy-900'}`}
+                >
+                  {solving ? '⏳ Solving…' : '▶ Solve'}
+                </button>
+              </div>
+            </div>
+          </header>
+
+          <div className="flex gap-4 p-4 items-start">
+
+            {/* ── Main content ── */}
+            <div className="flex-1 min-w-0 space-y-3">
+
+              {/* Cost Matrix */}
+              <div className="bg-white rounded-lg shadow p-3 mb-4">
+                <h3 className="text-base font-bold text-navy-800 mb-2 uppercase tracking-wide">Cost Matrix</h3>
+                <CostMatrixTable
+                  costs={costs} setCosts={setCosts}
+                  demands={demands} setDemands={setDemands}
+                />
+
+                {/* Apply % Change slider */}
+                <div className="mt-4 border-t border-gray-100 pt-4 px-2">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Apply % Change to All Costs</span>
+                    <span className={`text-sm font-bold font-mono w-16 text-center rounded px-2 py-0.5
+                      ${pctInput < 0 ? 'text-red-600 bg-red-50' : pctInput > 0 ? 'text-green-700 bg-green-50' : 'text-gray-400 bg-gray-100'}`}>
+                      {pctInput > 0 ? '+' : ''}{pctInput}%
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-[10px] text-red-400 font-semibold w-8 text-right">−50%</span>
+                    <div className="relative flex-1">
+                      <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gray-300 pointer-events-none"></div>
+                      <input
+                        type="range"
+                        min="-50" max="50" step="1"
+                        value={pctInput}
+                        onChange={e => setPctInput(Number(e.target.value))}
+                        className="w-full h-2 rounded-lg appearance-none cursor-pointer accent-navy-800"
+                        style={{background: pctInput < 0
+                          ? `linear-gradient(to right, #ef4444 0%, #ef4444 ${(pctInput+50)}%, #e5e7eb ${(pctInput+50)}%, #e5e7eb 50%, #e5e7eb 50%, #e5e7eb 100%)`
+                          : `linear-gradient(to right, #e5e7eb 0%, #e5e7eb 50%, #16a34a ${50}%, #16a34a ${(pctInput+50)}%, #e5e7eb ${(pctInput+50)}%, #e5e7eb 100%)`
+                        }}
+                      />
+                    </div>
+                    <span className="text-[10px] text-green-600 font-semibold w-8">+50%</span>
+                  </div>
+                  <div className="flex justify-between items-center mt-2 gap-3">
+                    <span className="text-[10px] text-gray-400">Drag left to decrease costs · Drag right to increase · Snaps back to 0 after Apply</span>
+                    <div className="flex gap-2 shrink-0">
+                      <button
+                        onClick={() => setPctInput(0)}
+                        className="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded text-xs font-medium"
+                      >Reset</button>
+                      <button
+                        onClick={handleApplyPct}
+                        disabled={pctInput === 0}
+                        className="px-4 py-1 bg-navy-800 hover:bg-navy-700 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded text-xs font-semibold"
+                      >Apply</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Group Constraints */}
+              <div className="bg-white rounded-lg shadow p-3 mb-4">
+                <h3 className="text-base font-bold text-navy-800 mb-2 uppercase tracking-wide">COA Constraints</h3>
+                <GroupConstraintsTable groups={groups} setGroups={setGroups} solution={solution} />
+              </div>
+
+              {/* Decision Variables */}
+              <div className="bg-white rounded-lg shadow p-3">
+                <h3 className="text-base font-bold text-navy-800 mb-2 uppercase tracking-wide">Decision Variables {solution && <span className="text-green-600 text-xs font-normal ml-1">✓ Solved</span>}</h3>
+                <DecisionTable solution={solution} demands={demands} costs={costs} />
+              </div>
+
+              {/* Legend */}
+              <div className="flex items-center gap-6 text-[11px] text-gray-500 px-1 flex-wrap">
+                <span className="flex items-center gap-1.5">
+                  <span className="w-5 h-3 bg-yellow-100 border border-yellow-300 rounded inline-block"></span>
+                  Assigned shipments
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="w-5 h-3 bg-gray-300 border border-gray-400 rounded inline-block"></span>
+                  Impossible route (Big-M = 999)
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="w-5 h-3 bg-green-50 border border-green-300 rounded inline-block"></span>
+                  Demand met (TRUE)
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="w-5 h-3 bg-red-50 border border-red-300 rounded inline-block"></span>
+                  Demand unmet (FALSE)
+                </span>
+              </div>
+
+              {/* ── Metrics panel ── */}
+              <MetricsPanel
+                objective={objective}
+                metricTons={metricTons}
+                setMetricTons={setMetricTons}
+                solution={solution}
+                costs={costs}
+              />
+
+              {/* ── Visualizations ── */}
+              <VisualizationsPanel
+                solution={solution}
+                costs={costs}
+                demands={demands}
+                groups={groups}
+                metricTons={metricTons}
+              />
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    /* ─────────────────────────────────────────────
+       VISUALIZATIONS PANEL
+    ───────────────────────────────────────────── */
+    const GROUP_COLORS = ['#1e3a8a','#2563eb','#7c3aed','#dc2626','#d97706','#059669'];
+
+    function VisualizationsPanel({ solution, costs, demands, groups, metricTons }) {
+      if (!solution) return null;
+
+      const NL = solution.length;
+      const ND = solution[0].length;
+
+      /* ── Derived data ── */
+      const groupTotals = groups.map((g) => {
+        const i0 = g.laneStart, i1 = g.laneStart + 1;
+        return solution[i0].reduce((s,v)=>s+v,0) + solution[i1].reduce((s,v)=>s+v,0);
+      });
+      const groupCosts = groups.map((g) => {
+        const i0 = g.laneStart, i1 = g.laneStart + 1;
+        return [i0,i1].reduce((tot,i) =>
+          tot + solution[i].reduce((s,v,j) => s+(costs[i][j]<BIG_M ? v*costs[i][j] : 0),0),0);
+      });
+      const totalCostRaw = groupCosts.reduce((s,v)=>s+v,0);
+      const colSums = Array.from({length:ND},(_,j)=>solution.reduce((s,r)=>s+r[j],0));
+      const totalShips = groupTotals.reduce((s,v)=>s+v,0);
+
+      /* ══════════════════════════════════════════
+         1. SANKEY DIAGRAM
+      ══════════════════════════════════════════ */
+      function SankeyChart() {
+        const W=640, H=320, LX=130, RX=510, nodeW=16;
+        const pad=6;
+
+        /* left nodes = groups */
+        const leftTotal = totalShips || 1;
+        const usableH = H - pad*(groups.length-1);
+        const leftNodes = groups.map((g,k)=>{
+          const h = Math.max(4,(groupTotals[k]/leftTotal)*usableH);
+          return {h, color:GROUP_COLORS[k], label:g.name, total:groupTotals[k]};
+        });
+        let ly=0;
+        leftNodes.forEach(n=>{ n.y=ly; ly+=n.h+pad; });
+
+        /* right nodes = destinations */
+        const rightTotal = colSums.reduce((s,v)=>s+v,0)||1;
+        const rightPad=3;
+        const rightUsableH = H - rightPad*(ND-1);
+        const rightNodes = DESTINATIONS.map((d,j)=>{
+          const h = Math.max(3,(colSums[j]/rightTotal)*rightUsableH);
+          return {h, label:d, total:colSums[j]};
+        });
+        let ry=0;
+        rightNodes.forEach(n=>{ n.y=ry; ry+=n.h+rightPad; });
+
+        /* flows */
+        const flows=[];
+        groups.forEach((g,k)=>{
+          const lNode = leftNodes[k];
+          let lOffset=0;
+          DESTINATIONS.forEach((d,j)=>{
+            const i0=g.laneStart, i1=g.laneStart+1;
+            const v=(solution[i0][j]||0)+(solution[i1][j]||0);
+            if(v===0) return;
+            const lFrac = v/leftTotal;
+            const rFrac = v/rightTotal;
+            const lh = lFrac*usableH;
+            const rh = rFrac*rightUsableH;
+            flows.push({
+              x1:LX+nodeW, y1:lNode.y+lOffset,
+              x2:RX,       y2:rightNodes[j].y,
+              lh, rh,
+              color:GROUP_COLORS[k], v
+            });
+            lOffset+=lh;
+          });
+        });
+
+        return (
+          <svg width="100%" viewBox={`0 0 ${W} ${H}`} className="overflow-visible">
+            {/* flows */}
+            {flows.map((f,i)=>{
+              const mx=(f.x1+f.x2)/2;
+              const path=`M${f.x1},${f.y1} C${mx},${f.y1} ${mx},${f.y2} ${f.x2},${f.y2}
+                          L${f.x2},${f.y2+f.rh} C${mx},${f.y2+f.rh} ${mx},${f.y1+f.lh} ${f.x1},${f.y1+f.lh} Z`;
+              return <path key={i} d={path} fill={f.color} opacity="0.35"/>;
+            })}
+            {/* left nodes */}
+            {leftNodes.map((n,k)=>(
+              <g key={k}>
+                <rect x={LX} y={n.y} width={nodeW} height={n.h} fill={n.color} rx="2"/>
+                <text x={LX-4} y={n.y+n.h/2} textAnchor="end" fontSize="9" fill="#374151" dominantBaseline="middle">
+                  {n.label.replace('EDF-2018','EDF').replace('Norden-Optionals','N-Opt').replace('Norden','Nord').replace('Phoenix','PHX')}
+                </text>
+                <text x={LX+nodeW+3} y={n.y+n.h/2} fontSize="8" fill="#6b7280" dominantBaseline="middle">{n.total}</text>
+              </g>
+            ))}
+            {/* right nodes */}
+            {rightNodes.map((n,j)=>(
+              <g key={j}>
+                <rect x={RX} y={n.y} width={nodeW} height={n.h} fill="#94a3b8" rx="2"/>
+                <text x={RX+nodeW+4} y={n.y+n.h/2} fontSize="8" fill="#374151" dominantBaseline="middle">
+                  {n.label.length>14?n.label.slice(0,13)+'…':n.label}
+                </text>
+              </g>
+            ))}
+          </svg>
+        );
+      }
+
+      /* ══════════════════════════════════════════
+         4. DONUT — Cost Share by COA Group
+      ══════════════════════════════════════════ */
+      function DonutChart() {
+        const cx=100,cy=100,R=80,r=48;
+        let angle=-Math.PI/2;
+        const slices=groupCosts.map((c,k)=>{
+          const pct=totalCostRaw>0?c/totalCostRaw:0;
+          const sweep=pct*2*Math.PI;
+          const x1=cx+R*Math.cos(angle), y1=cy+R*Math.sin(angle);
+          angle+=sweep;
+          const x2=cx+R*Math.cos(angle), y2=cy+R*Math.sin(angle);
+          const ix1=cx+r*Math.cos(angle-sweep), iy1=cy+r*Math.sin(angle-sweep);
+          const ix2=cx+r*Math.cos(angle), iy2=cy+r*Math.sin(angle);
+          const large=sweep>Math.PI?1:0;
+          const path=`M${x1},${y1} A${R},${R},0,${large},1,${x2},${y2} L${ix2},${iy2} A${r},${r},0,${large},0,${ix1},${iy1} Z`;
+          const midA=angle-sweep/2;
+          return {path,color:GROUP_COLORS[k],pct,midA,c,name:groups[k].name};
+        });
+        return (
+          <svg width="100%" viewBox="0 0 340 210">
+            {slices.map((s,k)=>(
+              <g key={k}>
+                <path d={s.path} fill={s.color} opacity="0.88"/>
+                {s.pct>0.04 && (
+                  <text x={cx+(R+r)/2*Math.cos(s.midA)} y={cy+(R+r)/2*Math.sin(s.midA)}
+                    textAnchor="middle" dominantBaseline="middle" fontSize="9" fontWeight="bold" fill="white">
+                    {(s.pct*100).toFixed(0)}%
+                  </text>
+                )}
+              </g>
+            ))}
+            <text x={cx} y={cy-7} textAnchor="middle" fontSize="10" fill="#374151" fontWeight="bold">Total</text>
+            <text x={cx} y={cy+7} textAnchor="middle" fontSize="9" fill="#6b7280">${totalCostRaw.toFixed(2)}</text>
+            {/* legend */}
+            {groups.map((g,k)=>(
+              <g key={k} transform={`translate(215,${20+k*28})`}>
+                <rect width="12" height="12" fill={GROUP_COLORS[k]} rx="2"/>
+                <text x="16" y="10" fontSize="9" fill="#374151">{g.name}</text>
+                <text x="16" y="20" fontSize="8" fill="#6b7280">${groupCosts[k].toFixed(2)} ({(groupCosts[k]/totalCostRaw*100||0).toFixed(1)}%)</text>
+              </g>
+            ))}
+          </svg>
+        );
+      }
+
+      /* ── Section wrapper ── */
+      const VizSection = ({title, subtitle, children}) => (
+        <div className="bg-white rounded-lg shadow p-4">
+          <div className="border-b border-gray-100 pb-2 mb-3">
+            <h4 className="text-sm font-bold text-navy-900 uppercase tracking-wide">{title}</h4>
+            {subtitle && <p className="text-[10px] text-gray-400 mt-0.5">{subtitle}</p>}
+          </div>
+          {children}
+        </div>
+      );
+
+      return (
+        <div className="space-y-4 mt-4">
+          <div className="border-b border-navy-200 pb-1">
+            <h3 className="text-base font-bold text-navy-900 uppercase tracking-wide">Solution Visualizations</h3>
+            <p className="text-[10px] text-gray-400">Charts update automatically after each solve</p>
+          </div>
+
+          {/* Sankey + Donut */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <VizSection title="Shipment Flow (Sankey)" subtitle="COA groups → destination ports · width = shipments">
+              <SankeyChart/>
+            </VizSection>
+            <VizSection title="Cost Share by COA Group" subtitle="Percentage of total optimized cost per contract">
+              <DonutChart/>
+            </VizSection>
+          </div>
+        </div>
+      );
+    }
+
+    /* ─── Mount ─── */
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
