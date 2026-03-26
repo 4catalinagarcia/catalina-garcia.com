@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2026 FAU/IMI SCM Supply Chain Management Case Study Competition</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: {
+              50:'#f0f4ff',100:'#dce6ff',200:'#b9ccff',300:'#7fa3ff',
+              400:'#4d7bff',600:'#0040ff',700:'#0033cc',800:'#1e3a8a',900:'#1e2d5e'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Segoe UI', system-ui, sans-serif; }
+    .card-hover { transition: transform .2s, box-shadow .2s; }
+    .card-hover:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,.15); }
+    .fade-up { animation: fadeUp .5s ease both; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:none} }
+    .resource-card { transition: transform .2s, box-shadow .2s, border-color .2s; }
+    .resource-card:hover { transform: translateY(-5px); box-shadow: 0 16px 40px rgba(0,0,0,.18); }
+  </style>
+</head>
+<body class="bg-gray-50">
+
+<!-- ══════════════════════════════════
+     STICKY HEADER
+══════════════════════════════════ -->
+<header class="sticky top-0 z-50 bg-[#1e2d5e] text-white shadow-xl">
+  <div class="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-4 flex-shrink-0">
+      <img src="assets/images/FAULogo.png" alt="Florida Atlantic University" class="h-12 w-auto object-contain" />
+      <div class="hidden sm:block">
+        <div class="text-sm font-bold tracking-wide leading-tight">2026 FAU / IMI</div>
+        <div class="text-xs text-blue-200 leading-tight">SCM Case Study Competition</div>
+      </div>
+    </div>
+    <div class="flex items-center gap-3 flex-shrink-0">
+      <a href="https://imigroup.com/" target="_blank" rel="noopener noreferrer"><img src="assets/images/IMI Logo.jpg" alt="International Materials" class="h-10 w-auto object-contain bg-white rounded px-2 py-1" /></a>
+      <a href="reference.html"
+         class="hidden md:inline-block bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors whitespace-nowrap">
+        Reference Guide
+      </a>
+      <a href="dashboard.html"
+         class="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors whitespace-nowrap">
+        Open Dashboard →
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════
+     HERO
+══════════════════════════════════ -->
+<section class="bg-gradient-to-br from-[#0f1e42] via-[#1e2d5e] to-[#243870] text-white py-24 px-6 relative overflow-hidden">
+  <!-- decorative rings -->
+  <div class="absolute inset-0 pointer-events-none opacity-10">
+    <div class="absolute top-[-80px] left-[-80px] w-96 h-96 rounded-full border-2 border-white"></div>
+    <div class="absolute bottom-[-60px] right-[-60px] w-72 h-72 rounded-full border-2 border-white"></div>
+  </div>
+
+  <div class="max-w-5xl mx-auto text-center relative fade-up">
+    <div class="flex justify-center items-center gap-6 mb-8">
+      <img src="assets/images/FAULogo.png" alt="FAU" class="h-16 w-auto object-contain opacity-90" />
+      <div class="w-px h-12 bg-white/30"></div>
+      <a href="https://imigroup.com/" target="_blank" rel="noopener noreferrer"><img src="assets/images/IMI Logo.jpg" alt="International Materials" class="h-12 w-auto object-contain bg-white/90 rounded-lg px-3 py-1.5" /></a>
+    </div>
+
+    <span class="inline-block bg-red-600 text-white text-xs font-bold px-4 py-1.5 rounded-full mb-6 uppercase tracking-widest">
+      2026 Case Study Competition
+    </span>
+
+    <h1 class="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-4 leading-tight">
+      Florida Atlantic University (FAU) / International Materials, LLC (IMI)<br/>Supply Chain Management<br/>Case Study Competition
+    </h1>
+    <p class="text-blue-200 text-lg md:text-xl font-medium mb-3 tracking-wide uppercase">
+      SCM Case Study · Freight Logistics Optimization
+    </p>
+    <p class="text-blue-100 text-base md:text-lg max-w-3xl mx-auto mb-10 leading-relaxed">
+      Objective is to minimize total freight costs across a real-world Contract of Affreightment
+      network spanning 12 COA lanes and 18 North American discharge ports — using
+      integer linear programming to find the optimal shipment allocation.
+    </p>
+
+    <!-- CTA buttons -->
+    <div class="flex flex-wrap justify-center gap-4">
+      <a href="dashboard.html"
+         class="bg-red-600 hover:bg-red-500 text-white px-8 py-4 rounded-xl text-lg font-bold transition-colors shadow-lg inline-flex items-center gap-2">
+        Launch Interactive Dashboard
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      </a>
+      <a href="reference.html"
+         class="bg-red-600 hover:bg-red-500 text-white px-8 py-4 rounded-xl text-lg font-bold transition-colors shadow-lg inline-flex items-center gap-2">
+        View Reference Guide
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════
+     PROBLEM STATS BAR
+══════════════════════════════════ -->
+<section class="bg-white border-b border-gray-100 py-8 px-6">
+  <div class="max-w-5xl mx-auto grid grid-cols-2 sm:grid-cols-5 gap-6 text-center">
+    <div>
+      <div class="text-3xl font-extrabold text-[#1e2d5e]">12</div>
+      <div class="text-sm text-gray-500 mt-1">COA Lanes</div>
+    </div>
+    <div>
+      <div class="text-3xl font-extrabold text-[#1e2d5e]">18</div>
+      <div class="text-sm text-gray-500 mt-1">Discharge Ports</div>
+    </div>
+    <div>
+      <div class="text-3xl font-extrabold text-[#1e2d5e]">6</div>
+      <div class="text-sm text-gray-500 mt-1">COA Groups</div>
+    </div>
+    <div>
+      <div class="text-3xl font-extrabold text-[#1e2d5e]">216</div>
+      <div class="text-sm text-gray-500 mt-1">Decision Variables</div>
+    </div>
+    <div>
+      <div class="text-3xl font-extrabold text-red-600">ILP</div>
+      <div class="text-sm text-gray-500 mt-1">Solver Engine</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════
+     ABOUT THE PROBLEM
+══════════════════════════════════ -->
+<section class="py-20 px-6 max-w-6xl mx-auto">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+    <div>
+      <span class="inline-block text-xs font-bold uppercase tracking-widest text-red-600 mb-3">The Challenge</span>
+      <h2 class="text-3xl font-extrabold text-[#1e2d5e] mb-5 leading-tight">
+        Minimizing Freight Costs Across a Complex COA Network
+      </h2>
+      <p class="text-gray-600 leading-relaxed mb-4">
+        International Materials (IMI) operates a network of Contracts of Affreightment (COAs)
+        that govern how bulk cargo is shipped from Spanish origins — Almeria and Garrucha — to
+        18 discharge ports across the East Coast, Gulf Coast, and Canada.
+      </p>
+      <p class="text-gray-600 leading-relaxed mb-4">
+        Each COA group carries contractual obligations: minimum and maximum shipment counts
+        that must be honored per planning period. At the same time, every destination port
+        has a minimum demand that must be met.
+      </p>
+      <p class="text-gray-600 leading-relaxed">
+        The competition objective is to determine the optimal number of shipments per lane
+        per destination — minimizing total freight cost while satisfying all contractual
+        and demand constraints using Integer Linear Programming.
+      </p>
+    </div>
+
+    <div class="flex items-center justify-center">
+      <img src="assets/images/Cargo-Ship.jpg" alt="Cargo Ship"
+           class="rounded-2xl shadow-xl w-full object-cover max-h-96" />
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     MEET THE TEAM
+══════════════════════════════════ -->
+<section class="py-20 px-6 bg-white">
+  <div class="max-w-5xl mx-auto text-center">
+    <span class="inline-block text-xs font-bold uppercase tracking-widest text-red-600 mb-3">Meet the Team</span>
+    <h2 class="text-3xl font-extrabold text-[#1e2d5e] mb-2">CMS Consultants</h2>
+    <p class="text-blue-700 font-semibold text-sm uppercase tracking-wide mb-4">FAU Supply Chain Excellence</p>
+    <p class="text-gray-600 max-w-2xl mx-auto mb-4 leading-relaxed">
+      CMS Consultants presents a comprehensive supply chain strategy for IMI, leveraging data-driven insights to transform maritime operations and bulk commodity trading efficiency.
+    </p>
+    <p class="text-gray-500 text-sm max-w-xl mx-auto mb-12">
+      Expertise from Florida Atlantic University's top Supply Chain Management talent leading the IMI Case Study.
+    </p>
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-10">
+
+      <div class="flex flex-col items-center">
+        <img src="assets/images/CatalinaGarcia.jpeg" alt="Catalina Garcia"
+             class="w-36 h-36 rounded-full object-cover shadow-lg border-4 border-[#1e2d5e] mb-4" />
+        <div class="font-bold text-[#1e2d5e] text-lg">Catalina Garcia</div>
+      </div>
+
+      <div class="flex flex-col items-center">
+        <img src="assets/images/MelissaMcCabe.jpg" alt="Melissa McCabe"
+             class="w-36 h-36 rounded-full object-cover shadow-lg border-4 border-[#1e2d5e] mb-4" />
+        <div class="font-bold text-[#1e2d5e] text-lg">Melissa McCabe</div>
+      </div>
+
+      <div class="flex flex-col items-center">
+        <img src="assets/images/SakshiMaurya.jpg" alt="Sakshi Maurya"
+             class="w-36 h-36 rounded-full object-cover shadow-lg border-4 border-[#1e2d5e] mb-4" />
+        <div class="font-bold text-[#1e2d5e] text-lg">Sakshi Maurya</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════
+     FOOTER
+══════════════════════════════════ -->
+<footer class="bg-[#1e2d5e] text-white py-14 px-6">
+  <div class="max-w-5xl mx-auto">
+    <div class="flex flex-col md:flex-row items-center justify-between gap-8 mb-10">
+      <div class="flex items-center gap-6">
+        <img src="assets/images/FAULogo.png" alt="Florida Atlantic University" class="h-14 w-auto object-contain opacity-90" />
+        <div>
+          <div class="font-bold text-lg">Florida Atlantic University</div>
+          <div class="text-blue-200 text-sm">College of Business · Supply Chain Management</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-6">
+        <a href="https://imigroup.com/" target="_blank" rel="noopener noreferrer"><img src="assets/images/IMI Logo.jpg" alt="International Materials" class="h-10 w-auto object-contain bg-white/90 rounded-lg px-3 py-1" /></a>
+        <div>
+          <div class="font-bold">International Materials, Inc.</div>
+          <div class="text-blue-200 text-sm">Industry Sponsor</div>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-white/20 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-blue-300">
+      <span>2026 FAU / IMI SCM Case Study Competition</span>
+      <div class="flex gap-6">
+        <a href="reference.html" class="hover:text-white transition-colors">Reference Guide</a>
+        <a href="dashboard.html" class="hover:text-white transition-colors">Dashboard →</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

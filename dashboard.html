@@ -36,8 +36,36 @@
     .sticky-head-lane { position: sticky; left: 0; z-index: 3; }
   </style>
 </head>
-<body class="bg-gray-100 min-h-screen">
+<body class="bg-gray-100">
   <div id="root"></div>
+
+  <footer class="bg-[#1e2d5e] text-white py-14 px-6">
+    <div class="max-w-5xl mx-auto">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-8 mb-10">
+        <div class="flex items-center gap-6">
+          <img src="assets/images/FAULogo.png" alt="Florida Atlantic University" class="h-14 w-auto object-contain opacity-90" />
+          <div>
+            <div class="font-bold text-lg">Florida Atlantic University</div>
+            <div class="text-blue-200 text-sm">College of Business · Supply Chain Management</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-6">
+          <a href="https://imigroup.com/" target="_blank" rel="noopener noreferrer"><img src="assets/images/IMI Logo.jpg" alt="International Materials" class="h-10 w-auto object-contain bg-white/90 rounded-lg px-3 py-1" /></a>
+          <div>
+            <div class="font-bold">International Materials, Inc.</div>
+            <div class="text-blue-200 text-sm">Industry Sponsor</div>
+          </div>
+        </div>
+      </div>
+      <div class="border-t border-white/20 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-blue-300">
+        <span>2026 FAU / IMI SCM Case Study Competition</span>
+        <div class="flex gap-6">
+          <a href="casestudy.html" class="hover:text-white transition-colors">← Competition Home</a>
+          <a href="reference.html" class="hover:text-white transition-colors">Reference Guide</a>
+        </div>
+      </div>
+    </div>
+  </footer>
 
   <script type="text/babel">
     const { useState, useCallback, useRef } = React;
@@ -709,37 +737,22 @@
         <div className="min-h-screen bg-gray-100">
 
           {/* ── Header ── */}
-          <header className="bg-navy-900 text-white shadow-xl sticky top-0 z-50">
-            <div className="px-6 py-4 flex items-center justify-between gap-4">
+          <header className="bg-[#1e2d5e] text-white shadow-xl sticky top-0 z-50">
+            <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between gap-4">
               <div className="flex items-center gap-4 flex-shrink-0">
-                <img src="assets/images/FAULogo.png" alt="FAU Logo" className="h-14 w-auto object-contain" />
+                <img src="assets/images/FAULogo.png" alt="Florida Atlantic University" className="h-12 w-auto object-contain" />
+                <div className="hidden sm:block">
+                  <div className="text-sm font-bold tracking-wide leading-tight">2026 FAU / IMI</div>
+                  <div className="text-xs text-blue-200 leading-tight">SCM Case Study Competition</div>
+                </div>
               </div>
-              <div className="text-center flex-1">
-                <h1 className="text-xl font-bold tracking-tight leading-tight">
-                  COA Cost Matrix &amp; Optimization
-                </h1>
-                <p className="text-blue-300 text-xs mt-1">
-                  Contract of Affreightment · 12 Lanes × 18 Destinations · LP Integer Optimization
-                </p>
-                {status && (
-                  <p className="text-yellow-300 text-xs mt-1 font-mono">{status}</p>
-                )}
-              </div>
-              <div className="flex items-center gap-4 flex-shrink-0">
-                <img src="assets/images/IMI Logo.jpg" alt="International Materials Logo" className="h-12 w-auto object-contain bg-white rounded px-2 py-1" />
-              </div>
-              <div className="flex items-center gap-2 flex-shrink-0">
-                <a
-                  href="landing.html"
-                  className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-gray-200 rounded text-xs font-medium"
-                >
-                  🏆 Competition
+              <div className="flex items-center gap-3 flex-shrink-0">
+                <a href="https://imigroup.com/" target="_blank" rel="noopener noreferrer"><img src="assets/images/IMI Logo.jpg" alt="International Materials Logo" className="h-10 w-auto object-contain bg-white rounded px-2 py-1" /></a>
+                <a href="casestudy.html" className="hidden md:inline-block bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors whitespace-nowrap">
+                  ← Competition Home
                 </a>
-                <a
-                  href="reference.html"
-                  className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-gray-200 rounded text-xs font-medium"
-                >
-                  📖 Reference
+                <a href="reference.html" className="hidden md:inline-block bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors whitespace-nowrap">
+                  Reference Guide
                 </a>
                 <button
                   onClick={handleReset}
