@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-C2SC43ESFY"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-C2SC43ESFY');
+  </script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Reference Guide — COA Cost Matrix & Optimization Dashboard</title>
@@ -35,6 +44,36 @@
   </style>
 </head>
 <body class="bg-gray-50">
+<!-- Password Protection -->
+<div id="password-overlay" style="position:fixed;inset:0;background:#f9fafb;display:flex;align-items:center;justify-content:center;z-index:9999;">
+  <div style="background:white;padding:2.5rem;border-radius:1rem;box-shadow:0 10px 40px rgba(0,0,0,0.12);width:100%;max-width:360px;text-align:center;">
+    <h2 style="font-size:1.25rem;font-weight:700;color:#111827;margin-bottom:0.5rem;">Protected Page</h2>
+    <p style="font-size:0.875rem;color:#6b7280;margin-bottom:1.5rem;">Enter the password to continue.</p>
+    <input id="password-input" type="password" placeholder="Password" style="width:100%;padding:0.625rem 0.75rem;border:1px solid #d1d5db;border-radius:0.5rem;font-size:1rem;outline:none;box-sizing:border-box;margin-bottom:0.75rem;" />
+    <div id="password-error" style="color:#ef4444;font-size:0.8rem;margin-bottom:0.75rem;display:none;">Incorrect password. Try again.</div>
+    <button onclick="checkPassword()" style="width:100%;padding:0.625rem;background:#111827;color:white;border:none;border-radius:0.5rem;font-size:1rem;font-weight:600;cursor:pointer;">Enter</button>
+  </div>
+</div>
+<script>
+  (function() {
+    if (sessionStorage.getItem('imi_auth') === 'true') {
+      document.getElementById('password-overlay').style.display = 'none';
+    }
+  })();
+  function checkPassword() {
+    var input = document.getElementById('password-input').value;
+    if (input === 'IMI2026') {
+      sessionStorage.setItem('imi_auth', 'true');
+      document.getElementById('password-overlay').style.display = 'none';
+    } else {
+      document.getElementById('password-error').style.display = 'block';
+      document.getElementById('password-input').value = '';
+    }
+  }
+  document.getElementById('password-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') checkPassword();
+  });
+</script>
 
 <!-- ══════════════════════════════════
      STICKY HEADER
