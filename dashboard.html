@@ -35,6 +35,7 @@
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
   <style>
     body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
     .cell-edit { width:100%; background:transparent; border:none; outline:none; text-align:center; font-size:11px; }
@@ -768,7 +769,73 @@
         setObjective(null);
         setPctInput('');
         setStatus('');
+      };
 
+      const handleExport = () => {
+        const wb = XLSX.utils.book_new();
+
+        // Sheet 1: Decision Variables (Solution)
+        if (solution) {
+          const header = ['COA / Origin → Destination', ...DESTINATIONS, 'COA Cost ($/shipment)'];
+          const rows = solution.map((row, i) => {
+            const rowCost = row.reduce((s, v, j) => s + (costs[i][j] < BIG_M ? v * costs[i][j] : 0), 0);
+            return [LANES[i], ...row, rowCost > 0 ? rowCost : ''];
+          });
+          const colSums = Array.from({length: ND}, (_, j) => solution.reduce((s, row) => s + row[j], 0));
+          const totalCostRaw = solution.reduce((total, row, i) =>
+            total + row.reduce((s, v, j) => s + (costs[i][j] < BIG_M ? v * costs[i][j] : 0), 0), 0);
+          const demandMinRow  = ['Demand Minimum',    ...demands,  demands.reduce((s, d) => s + d, 0)];
+          const demandOptRow  = ['Demand (Optimized)', ...colSums, `$${totalCostRaw.toFixed(2)}`];
+          const validRow      = ['Validation Check',  ...demands.map((d, j) => colSums[j] >= d ? 'TRUE' : 'FALSE'),
+                                  demands.every((d, j) => colSums[j] >= d) ? 'ALL OK' : 'FAIL'];
+          const ws1 = XLSX.utils.aoa_to_sheet([header, ...rows, demandMinRow, demandOptRow, validRow]);
+          XLSX.utils.book_append_sheet(wb, ws1, 'Decision Variables');
+        }
+
+        // Sheet 2: Cost Matrix
+        const cmHeader = ['COA / Origin → Destination', ...DESTINATIONS];
+        const cmRows   = costs.map((row, i) => [LANES[i], ...row.map(c => c >= BIG_M ? 'N/A' : c)]);
+        const cmDemand = ['Demand Minimum', ...demands];
+        const ws2 = XLSX.utils.aoa_to_sheet([cmHeader, ...cmRows, cmDemand]);
+        XLSX.utils.book_append_sheet(wb, ws2, 'Cost Matrix');
+
+        // Sheet 3: Group Constraints
+        const gcHeader = ['Group (COA)', 'Min Shipments', 'Max Shipments',
+                          ...(solution ? ['Optimized', 'Status'] : [])];
+        const gcRows = groups.map((g, k) => {
+          const used = solution
+            ? solution[g.laneStart].reduce((s, v) => s + v, 0)
+              + solution[g.laneStart + 1].reduce((s, v) => s + v, 0)
+            : null;
+          const ok = used !== null && used >= g.min && used <= g.max;
+          return [g.name, g.min, g.max, ...(solution ? [used, ok ? 'OK' : 'Violation'] : [])];
+        });
+        const ws3 = XLSX.utils.aoa_to_sheet([gcHeader, ...gcRows]);
+        XLSX.utils.book_append_sheet(wb, ws3, 'Group Constraints');
+
+        // Sheet 4: Summary
+        if (solution) {
+          const sumproduct = solution.reduce((total, row, i) =>
+            total + row.reduce((s, v, j) => s + (costs[i][j] < BIG_M ? costs[i][j] * v : 0), 0), 0);
+          const totalCost  = sumproduct * metricTons;
+          const totalShips = solution.reduce((s, r) => s + r.reduce((a, v) => a + v, 0), 0);
+          const lanesUsed  = solution.filter(r => r.some(v => v > 0)).length;
+          const routesUsed = solution.reduce((s, r) => s + r.filter(v => v > 0).length, 0);
+          const summaryData = [
+            ['Metric', 'Value'],
+            ['Optimized Cost ($/MT)', parseFloat(sumproduct.toFixed(2))],
+            ['Metric Tons Shipped', metricTons],
+            ['Total Cost ($)', parseFloat(totalCost.toFixed(0))],
+            ['Total Shipments', totalShips],
+            ['Lanes Used', `${lanesUsed} / ${NL}`],
+            ['Routes Used', `${routesUsed} / ${NL * ND}`],
+          ];
+          const ws4 = XLSX.utils.aoa_to_sheet(summaryData);
+          XLSX.utils.book_append_sheet(wb, ws4, 'Summary');
+        }
+
+        const filename = `COA_Optimization_${new Date().toISOString().slice(0, 10)}.xlsx`;
+        XLSX.writeFile(wb, filename);
       };
 
 
@@ -808,6 +875,17 @@
                       : 'bg-yellow-400 hover:bg-yellow-300 text-navy-900'}`}
                 >
                   {solving ? '⏳ Solving…' : '▶ Solve'}
+                </button>
+                <button
+                  onClick={handleExport}
+                  disabled={!solution}
+                  title={solution ? 'Export solution to Excel' : 'Run the solver first'}
+                  className={`px-4 py-1.5 rounded font-bold text-sm shadow transition-colors
+                    ${solution
+                      ? 'bg-green-600 hover:bg-green-500 text-white'
+                      : 'bg-gray-600 text-gray-400 cursor-not-allowed opacity-50'}`}
+                >
+                  ⬇ Export
                 </button>
               </div>
             </div>
