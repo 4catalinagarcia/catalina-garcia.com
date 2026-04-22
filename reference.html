@@ -45,7 +45,7 @@
 </head>
 <body class="bg-gray-50">
 <!-- Password Protection -->
-<div id="password-overlay" style="position:fixed;inset:0;background:#f9fafb;display:flex;align-items:center;justify-content:center;z-index:9999;">
+<div id="password-overlay" style="position:fixed;inset:0;background:#f9fafb;display:none;align-items:center;justify-content:center;z-index:9999;">
   <div style="background:white;padding:2.5rem;border-radius:1rem;box-shadow:0 10px 40px rgba(0,0,0,0.12);width:100%;max-width:360px;text-align:center;">
     <h2 style="font-size:1.25rem;font-weight:700;color:#111827;margin-bottom:0.5rem;">Protected Page</h2>
     <p style="font-size:0.875rem;color:#6b7280;margin-bottom:1.5rem;">Enter the password to continue.</p>
@@ -56,14 +56,14 @@
 </div>
 <script>
   (function() {
-    if (sessionStorage.getItem('imi_auth') === 'true') {
+    if (localStorage.getItem('imi_auth') === 'true') {
       document.getElementById('password-overlay').style.display = 'none';
     }
   })();
   function checkPassword() {
     var input = document.getElementById('password-input').value;
     if (input === 'IMI2026') {
-      sessionStorage.setItem('imi_auth', 'true');
+      localStorage.setItem('imi_auth', 'true');
       document.getElementById('password-overlay').style.display = 'none';
     } else {
       document.getElementById('password-error').style.display = 'block';
@@ -78,7 +78,7 @@
 <!-- ══════════════════════════════════
      STICKY HEADER
 ══════════════════════════════════ -->
-<header class="sticky top-0 z-50 bg-[#1e2d5e] text-white shadow-xl">
+<header class="sticky top-0 z-50 bg-[#1e2d5e] text-white shadow-xl relative">
   <div class="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between gap-4">
     <div class="flex items-center gap-4 flex-shrink-0">
       <a href="https://www.fau.edu" target="_blank" rel="noopener noreferrer"><img src="assets/images/FAULogo.png" alt="Florida Atlantic University" class="h-12 w-auto object-contain" /></a>
@@ -89,14 +89,19 @@
       <a href="https://imigroup.com/" target="_blank" rel="noopener noreferrer"><img src="assets/images/IMI Logo.jpg" alt="International Materials" class="h-10 w-auto object-contain bg-white rounded px-2 py-1" /></a>
     </div>
     <div class="flex items-center gap-3 flex-shrink-0">
-      <a href="casestudy.html"
-         class="hidden md:inline-block bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors whitespace-nowrap">
-        ← Competition Home
-      </a>
-      <a href="dashboard.html"
-         class="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors whitespace-nowrap">
-        Open Dashboard →
-      </a>
+      <button onclick="document.getElementById('mobile-menu-ref').classList.toggle('hidden')" class="flex flex-col justify-center gap-1.5 p-2 rounded focus:outline-none" aria-label="Toggle menu">
+        <span class="block w-6 h-0.5 bg-white"></span>
+        <span class="block w-6 h-0.5 bg-white"></span>
+        <span class="block w-6 h-0.5 bg-white"></span>
+      </button>
+    </div>
+  </div>
+  <div id="mobile-menu-ref" class="hidden absolute top-full left-0 right-0 bg-[#1e2d5e] border-t border-white/10 shadow-xl z-50">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex flex-col">
+      <a href="casestudy.html" class="text-white font-semibold text-sm py-3 border-b border-white/10 hover:text-blue-200 transition-colors">Competition Home</a>
+      <a href="reference.html" class="text-white font-semibold text-sm py-3 border-b border-white/10 hover:text-blue-200 transition-colors">Optimization Reference Guide</a>
+      <a href="dashboard.html" class="text-white font-semibold text-sm py-3 border-b border-white/10 hover:text-blue-200 transition-colors">Optimization Dashboard</a>
+      <a href="forecasting.html" class="text-white font-semibold text-sm py-3 hover:text-blue-200 transition-colors">Forecasting Dashboards</a>
     </div>
   </div>
 </header>

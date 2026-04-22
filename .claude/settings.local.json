@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(awk '{print $NF}')",
+      "Bash(xargs -I{} sh -c 'echo \"=== {} ===\"; head -5 \"{}\" 2>/dev/null')"
+    ]
+  }
+}
