@@ -107,51 +107,6 @@
       letter-spacing: 0.3px;
     }
 
-    .nav-links {
-      list-style: none;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .nav-link {
-      color: rgba(255,255,255,0.82);
-      text-decoration: none;
-      font-size: 0.875rem;
-      font-weight: 500;
-      padding: 7px 14px;
-      border-radius: var(--radius-sm);
-      transition: var(--transition);
-    }
-    .nav-link:hover, .nav-link.active {
-      color: var(--white);
-      background: rgba(255,255,255,0.12);
-    }
-    .nav-cta {
-      background: var(--fau-red);
-      color: var(--white) !important;
-      padding: 8px 18px;
-      border-radius: var(--radius-sm);
-      font-weight: 600;
-    }
-    .nav-cta:hover { background: var(--fau-red-dark) !important; }
-
-    .nav-toggle {
-      display: none;
-      flex-direction: column;
-      justify-content: space-between;
-      width: 26px; height: 18px;
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 0;
-    }
-    .nav-toggle span {
-      display: block;
-      height: 2px;
-      background: var(--white);
-      border-radius: 2px;
-      transition: var(--transition);
-    }
 
     /* =====================================================
        HERO
@@ -685,6 +640,164 @@
     }
 
     /* =====================================================
+       CUSTOM FIELD ROWS
+    ===================================================== */
+    .btn-add-field {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      width: 100%;
+      margin-top: 14px;
+      padding: 9px 13px;
+      background: transparent;
+      border: 2px dashed var(--gray-mid);
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--gray-text);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .btn-add-field:hover { border-color: var(--fau-blue); color: var(--fau-blue); }
+    .btn-add-field.red:hover { border-color: var(--fau-red); color: var(--fau-red); }
+
+    .custom-field-group { position: relative; }
+    .custom-field-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 7px;
+    }
+    .custom-label-input {
+      flex: 1;
+      padding: 6px 10px;
+      border: 1.5px solid var(--gray-light);
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--dark-text);
+      outline: none;
+      transition: var(--transition);
+    }
+    .custom-label-input:focus { border-color: var(--fau-blue); }
+    .custom-label-input.red:focus { border-color: var(--fau-red); }
+    .custom-remove-btn {
+      width: 26px; height: 26px;
+      flex-shrink: 0;
+      background: transparent;
+      border: 1.5px solid var(--gray-light);
+      border-radius: 50%;
+      color: var(--gray-text);
+      font-size: 0.72rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
+    .custom-remove-btn:hover { background: var(--red-light); border-color: var(--fau-red); color: var(--fau-red); }
+
+    .btn-export {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 11px;
+      background: var(--fau-blue-dark);
+      border: 2px solid var(--fau-blue-dark);
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--white);
+      cursor: pointer;
+      transition: var(--transition);
+      letter-spacing: 0.3px;
+    }
+    .btn-export:hover { background: var(--fau-blue-mid); border-color: var(--fau-blue-mid); }
+
+    /* =====================================================
+       PRINT / EXPORT STYLES
+    ===================================================== */
+    #printView { display: none; }
+
+    @media print {
+      body > *:not(#printView) { display: none !important; }
+      #printView {
+        display: block !important;
+        font-family: 'Inter', system-ui, sans-serif;
+        color: #1A1A2E;
+        padding: 32px;
+        max-width: 720px;
+        margin: 0 auto;
+      }
+      .pv-header {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        border-bottom: 3px solid #003087;
+        padding-bottom: 18px;
+        margin-bottom: 24px;
+      }
+      .pv-header-text h1 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #00205B;
+        margin-bottom: 3px;
+      }
+      .pv-header-text p { font-size: 0.78rem; color: #64748B; }
+      .pv-summary {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+        margin-bottom: 28px;
+      }
+      .pv-stat {
+        border: 1px solid #E8EDF5;
+        border-radius: 8px;
+        padding: 14px 16px;
+        text-align: center;
+      }
+      .pv-stat-label { font-size: 0.7rem; color: #64748B; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+      .pv-stat-val { font-size: 1.3rem; font-weight: 700; }
+      .pv-stat-val.income  { color: #003087; }
+      .pv-stat-val.expense { color: #CC0000; }
+      .pv-stat-val.remain  { color: #16A34A; }
+      .pv-stat-val.over    { color: #990000; }
+      .pv-section-title {
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        color: #64748B;
+        border-bottom: 1px solid #E8EDF5;
+        padding-bottom: 6px;
+        margin: 20px 0 10px;
+      }
+      .pv-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.85rem;
+        padding: 5px 0;
+        border-bottom: 1px dotted #E8EDF5;
+      }
+      .pv-row-label { color: #1A1A2E; }
+      .pv-row-val { font-weight: 600; }
+      .pv-footer {
+        margin-top: 32px;
+        padding-top: 14px;
+        border-top: 1px solid #E8EDF5;
+        font-size: 0.72rem;
+        color: #64748B;
+        display: flex;
+        justify-content: space-between;
+      }
+    }
+
+    /* =====================================================
        FOOTER
     ===================================================== */
     .footer {
@@ -776,22 +889,145 @@
     @media (max-width: 768px) {
       :root { --nav-height: 64px; }
       .section { padding: 60px 0; }
-      .nav-toggle { display: flex; }
-      .nav-links {
-        display: none;
-        position: absolute;
-        top: var(--nav-height);
-        left: 0; right: 0;
-        background: var(--fau-blue-dark);
-        flex-direction: column;
-        padding: 12px 20px 20px;
-        gap: 4px;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.2);
-      }
-      .nav-links.open { display: flex; }
-      .nav-link { padding: 10px 14px; border-radius: var(--radius-sm); }
       .tips-grid { grid-template-columns: 1fr; }
       .hero-stats { gap: 28px; }
+      .logo-text { font-size: 0.78rem; letter-spacing: 0; }
+    }
+
+    /* =====================================================
+       AUTH MODAL
+    ===================================================== */
+    .auth-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 32, 91, 0.82);
+      backdrop-filter: blur(6px);
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .auth-box {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      width: 100%;
+      max-width: 420px;
+      overflow: hidden;
+    }
+    .auth-header {
+      background: var(--fau-blue-dark);
+      padding: 28px 32px 24px;
+      text-align: center;
+    }
+    .auth-header img { height: 44px; margin-bottom: 14px; }
+    .auth-header-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 4px;
+    }
+    .auth-header-sub {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.6);
+    }
+    .auth-tabs {
+      display: flex;
+      border-bottom: 2px solid var(--gray-light);
+    }
+    .auth-tab {
+      flex: 1;
+      padding: 14px;
+      text-align: center;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--gray-text);
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-family: 'Inter', sans-serif;
+      transition: var(--transition);
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+    }
+    .auth-tab.active {
+      color: var(--fau-blue);
+      border-bottom-color: var(--fau-blue);
+    }
+    .auth-body { padding: 28px 32px; }
+    .auth-input-group { margin-bottom: 16px; }
+    .auth-label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--dark-text);
+      margin-bottom: 6px;
+    }
+    .auth-input {
+      width: 100%;
+      padding: 11px 14px;
+      border: 2px solid var(--gray-light);
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: var(--dark-text);
+      outline: none;
+      transition: var(--transition);
+    }
+    .auth-input:focus {
+      border-color: var(--fau-blue);
+      box-shadow: 0 0 0 3px rgba(0,48,135,0.1);
+    }
+    .auth-error {
+      font-size: 0.8rem;
+      color: var(--fau-red-dark);
+      background: var(--red-light);
+      border-radius: var(--radius-sm);
+      padding: 9px 13px;
+      margin-bottom: 16px;
+      display: none;
+    }
+    .auth-btn {
+      width: 100%;
+      padding: 13px;
+      background: var(--fau-blue);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      letter-spacing: 0.3px;
+    }
+    .auth-btn:hover { background: var(--fau-blue-mid); }
+
+    /* Logout button in navbar */
+    .nav-logout {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 14px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: var(--radius-sm);
+      color: rgba(255,255,255,0.85);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .nav-logout:hover { background: var(--fau-red); border-color: var(--fau-red); color: var(--white); }
+    .nav-user {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.65);
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
   </style>
 </head>
@@ -802,21 +1038,73 @@
   ============================================================ -->
   <nav id="navbar" class="navbar">
     <div class="nav-container">
-      <a href="index.html" class="nav-logo">
-        <img src="assets/images/FAULogo.png" alt="Florida Atlantic University" style="height:38px; width:auto; display:block;">
-      </a>
-      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false">
-        <span></span><span></span><span></span>
-      </button>
-      <ul class="nav-links" id="navLinks" role="list">
-        <li><a href="index.html"             class="nav-link">Home</a></li>
-        <li><a href="index.html#about"       class="nav-link">About</a></li>
-        <li><a href="index.html#portfolio"   class="nav-link">Portfolio</a></li>
-        <li><a href="index.html#resume"      class="nav-link">Resume</a></li>
-        <li><a href="index.html#contact"     class="nav-link nav-cta">Contact</a></li>
-      </ul>
+      <div style="display:flex; align-items:center; gap:16px;">
+        <a href="index.html" class="nav-logo">
+          <img src="assets/images/FAULogo.png" alt="Florida Atlantic University" style="height:38px; width:auto; display:block;">
+        </a>
+        <span class="logo-text">FAU Student Budget Calculator</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <span class="nav-user" id="navUser" style="display:none;">
+          <i class="fas fa-user-circle"></i>
+          <span id="navUsername"></span>
+        </span>
+        <button class="nav-logout" id="logoutBtn" style="display:none;" onclick="logout()">
+          <i class="fas fa-right-from-bracket"></i> Log Out
+        </button>
+      </div>
     </div>
   </nav>
+
+  <!-- ============================================================
+       AUTH MODAL
+  ============================================================ -->
+  <div class="auth-overlay" id="authOverlay">
+    <div class="auth-box">
+      <div class="auth-header">
+        <img src="assets/images/FAULogo.png" alt="Florida Atlantic University">
+        <div class="auth-header-title">FAU Student Budget Calculator</div>
+        <div class="auth-header-sub">Sign in to save your budget across visits</div>
+      </div>
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tabLogin" onclick="switchTab('login')">Log In</button>
+        <button class="auth-tab" id="tabRegister" onclick="switchTab('register')">Register</button>
+      </div>
+      <div class="auth-body">
+        <div class="auth-error" id="authError"></div>
+
+        <!-- Login Form -->
+        <div id="formLogin">
+          <div class="auth-input-group">
+            <label class="auth-label">Username</label>
+            <input class="auth-input" type="text" id="loginUser" placeholder="Enter your username" autocomplete="username">
+          </div>
+          <div class="auth-input-group">
+            <label class="auth-label">Password</label>
+            <input class="auth-input" type="password" id="loginPass" placeholder="Enter your password" autocomplete="current-password">
+          </div>
+          <button class="auth-btn" onclick="doLogin()">Log In</button>
+        </div>
+
+        <!-- Register Form -->
+        <div id="formRegister" style="display:none;">
+          <div class="auth-input-group">
+            <label class="auth-label">Username</label>
+            <input class="auth-input" type="text" id="regUser" placeholder="Choose a username" autocomplete="username">
+          </div>
+          <div class="auth-input-group">
+            <label class="auth-label">Password</label>
+            <input class="auth-input" type="password" id="regPass" placeholder="Choose a password (min 6 chars)" autocomplete="new-password">
+          </div>
+          <div class="auth-input-group">
+            <label class="auth-label">Confirm Password</label>
+            <input class="auth-input" type="password" id="regPassConfirm" placeholder="Repeat your password" autocomplete="new-password">
+          </div>
+          <button class="auth-btn" onclick="doRegister()">Create Account</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- ============================================================
        HERO
@@ -942,6 +1230,10 @@
                   <input type="number" class="calc-input income-input" id="inc-other" placeholder="0" min="0" oninput="calculate()">
                 </div>
               </div>
+              <div id="customIncFields"></div>
+              <button class="btn-add-field" onclick="addCustomField('inc')">
+                <i class="fas fa-plus"></i> Add Income Field
+              </button>
             </div>
           </div>
 
@@ -1079,6 +1371,10 @@
                   <input type="number" class="calc-input expense-input" id="exp-other" placeholder="0" min="0" oninput="calculate()">
                 </div>
               </div>
+              <div id="customExpFields"></div>
+              <button class="btn-add-field red" onclick="addCustomField('exp')">
+                <i class="fas fa-plus"></i> Add Expense Field
+              </button>
             </div>
           </div>
 
@@ -1146,6 +1442,11 @@
             </div>
           </div>
 
+          <!-- Export -->
+          <button class="btn-export" onclick="exportBudget()">
+            <i class="fas fa-download"></i> Download Budget Report
+          </button>
+
           <!-- Reset -->
           <button class="btn-reset" onclick="resetAll()">
             <i class="fas fa-rotate-left"></i> Reset All Fields
@@ -1205,26 +1506,44 @@
   </section>
 
   <!-- ============================================================
+       PRINT TEMPLATE (hidden, shown only when printing)
+  ============================================================ -->
+  <div id="printView">
+    <div class="pv-header">
+      <img src="assets/images/FAULogo.png" alt="FAU" style="height:48px;">
+      <div class="pv-header-text">
+        <h1>FAU Student Budget Report</h1>
+        <p id="pv-meta"></p>
+      </div>
+    </div>
+    <div class="pv-summary">
+      <div class="pv-stat">
+        <div class="pv-stat-label">Total Income</div>
+        <div class="pv-stat-val income" id="pv-income"></div>
+      </div>
+      <div class="pv-stat">
+        <div class="pv-stat-label">Total Expenses</div>
+        <div class="pv-stat-val expense" id="pv-expenses"></div>
+      </div>
+      <div class="pv-stat">
+        <div class="pv-stat-label">Remaining</div>
+        <div class="pv-stat-val" id="pv-remaining"></div>
+      </div>
+    </div>
+    <div id="pv-income-rows"></div>
+    <div id="pv-expense-rows"></div>
+    <div class="pv-footer">
+      <span>&copy; 2026 &mdash; Created by Ryan Bauer, Catalina Garcia, Victoria Ferrante</span>
+      <span id="pv-date"></span>
+    </div>
+  </div>
+
+  <!-- ============================================================
        FOOTER
   ============================================================ -->
   <footer class="footer">
     <div class="footer-inner">
-      <div>
-        <span class="footer-name">Catalina Garcia</span>
-        <span class="footer-tagline">Marine Corps Veteran &nbsp;&middot;&nbsp; Data Analytics Professional</span>
-      </div>
-      <div class="footer-links">
-        <a href="https://www.linkedin.com/in/garcia-catalina/" target="_blank" rel="noopener noreferrer" class="footer-link" aria-label="LinkedIn">
-          <i class="fab fa-linkedin"></i>
-        </a>
-        <a href="mailto:4catalinagarcia@gmail.com" class="footer-link" aria-label="Email">
-          <i class="fas fa-envelope"></i>
-        </a>
-      </div>
-      <a href="index.html" class="footer-back">
-        <i class="fas fa-arrow-left"></i> Back to Portfolio
-      </a>
-      <p class="footer-copy">&copy; 2026 Catalina Garcia. All rights reserved.</p>
+      <p class="footer-copy">&copy; 2026 &mdash; Created by Ryan Bauer, Catalina Garcia, Victoria Ferrante</p>
     </div>
   </footer>
 
@@ -1266,13 +1585,45 @@
       { id: 'exp-other',         label: 'Other',            icon: 'fa-ellipsis' },
     ];
 
+    /* ------ CUSTOM FIELDS ------ */
+    let customIncCounter = 0;
+    let customExpCounter = 0;
+
+    function addCustomField(type, label = '', value = '') {
+      const isExp = type === 'exp';
+      const container = document.getElementById(isExp ? 'customExpFields' : 'customIncFields');
+      const id = `custom-${type}-${isExp ? customExpCounter++ : customIncCounter++}`;
+      const div = document.createElement('div');
+      div.className = 'input-group custom-field-group';
+      div.dataset.customType = type;
+      div.innerHTML = `
+        <div class="custom-field-top">
+          <input type="text" class="custom-label-input${isExp ? ' red' : ''}" placeholder="${isExp ? 'Expense' : 'Income'} name…" value="${label.replace(/"/g, '&quot;')}" oninput="saveData()">
+          <button class="custom-remove-btn" onclick="removeCustomField(this)" title="Remove"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="input-wrapper">
+          <span class="input-prefix">$</span>
+          <input type="number" class="calc-input ${isExp ? 'custom-exp-input' : 'income-input custom-inc-input'}" id="${id}" placeholder="0" min="0" value="${value}" oninput="calculate(); saveData()">
+        </div>`;
+      container.appendChild(div);
+      if (!label) div.querySelector('.custom-label-input').focus();
+      calculate();
+    }
+
+    function removeCustomField(btn) {
+      btn.closest('.custom-field-group').remove();
+      saveData();
+      calculate();
+    }
+
     /* ------ MAIN CALCULATE ------ */
     function calculate() {
       const income  = Array.from(document.querySelectorAll('.income-input'))
                            .reduce((s, el) => s + (parseFloat(el.value) || 0), 0);
       const expenses = expCategories.reduce((s, c) => {
         return s + (parseFloat(document.getElementById(c.id).value) || 0);
-      }, 0);
+      }, 0) + Array.from(document.querySelectorAll('.custom-exp-input'))
+                    .reduce((s, el) => s + (parseFloat(el.value) || 0), 0);
 
       const remaining = income - expenses;
       const pct = income > 0 ? Math.min(100, Math.round((expenses / income) * 100)) : 0;
@@ -1318,9 +1669,17 @@
 
     function renderBreakdown(totalExp) {
       const container = document.getElementById('expenseBreakdown');
-      const active = expCategories.filter(c => {
-        const v = parseFloat(document.getElementById(c.id).value) || 0;
-        return v > 0;
+
+      const active = expCategories
+        .filter(c => (parseFloat(document.getElementById(c.id).value) || 0) > 0)
+        .map(c => ({ label: c.label, icon: c.icon, val: parseFloat(document.getElementById(c.id).value) || 0 }));
+
+      document.querySelectorAll('.custom-exp-input').forEach(el => {
+        const v = parseFloat(el.value) || 0;
+        if (v > 0) {
+          const labelEl = el.closest('.custom-field-group')?.querySelector('.custom-label-input');
+          active.push({ label: labelEl?.value.trim() || 'Custom', icon: 'fa-tag', val: v });
+        }
       });
 
       if (active.length === 0) {
@@ -1328,20 +1687,15 @@
         return;
       }
 
-      // Sort descending
-      active.sort((a, b) => {
-        return (parseFloat(document.getElementById(b.id).value) || 0)
-             - (parseFloat(document.getElementById(a.id).value) || 0);
-      });
+      active.sort((a, b) => b.val - a.val);
 
       container.innerHTML = active.map(c => {
-        const val = parseFloat(document.getElementById(c.id).value) || 0;
-        const p   = totalExp > 0 ? Math.round((val / totalExp) * 100) : 0;
+        const p = totalExp > 0 ? Math.round((c.val / totalExp) * 100) : 0;
         return `
           <div class="expense-bar-item">
             <div class="expense-bar-top">
               <span class="expense-bar-name"><i class="fas ${c.icon}"></i>${c.label}</span>
-              <span class="expense-bar-amt">${fmt(val)} &middot; ${p}%</span>
+              <span class="expense-bar-amt">${fmt(c.val)} &middot; ${p}%</span>
             </div>
             <div class="expense-bar-track">
               <div class="expense-bar-fill" style="width:${p}%"></div>
@@ -1357,33 +1711,162 @@
     /* ------ RESET ------ */
     function resetAll() {
       document.querySelectorAll('.calc-input').forEach(el => el.value = '');
+      document.getElementById('customIncFields').innerHTML = '';
+      document.getElementById('customExpFields').innerHTML = '';
+      customIncCounter = 0;
+      customExpCounter = 0;
+      saveData();
       calculate();
     }
+
+    /* ------ AUTH ------ */
+    let currentUser = null;
+
+    function switchTab(tab) {
+      document.getElementById('authError').style.display = 'none';
+      document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
+      document.getElementById('tabRegister').classList.toggle('active', tab === 'register');
+      document.getElementById('formLogin').style.display    = tab === 'login'    ? '' : 'none';
+      document.getElementById('formRegister').style.display = tab === 'register' ? '' : 'none';
+    }
+
+    function showError(msg) {
+      const el = document.getElementById('authError');
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+
+    function getUsers() {
+      return JSON.parse(localStorage.getItem('fau_users') || '{}');
+    }
+
+    function doLogin() {
+      const user = document.getElementById('loginUser').value.trim();
+      const pass = document.getElementById('loginPass').value;
+      if (!user || !pass) return showError('Please fill in all fields.');
+      const users = getUsers();
+      if (!users[user]) return showError('Username not found. Please register first.');
+      if (users[user].password !== btoa(pass)) return showError('Incorrect password.');
+      loginSuccess(user);
+    }
+
+    function doRegister() {
+      const user    = document.getElementById('regUser').value.trim();
+      const pass    = document.getElementById('regPass').value;
+      const confirm = document.getElementById('regPassConfirm').value;
+      if (!user || !pass || !confirm) return showError('Please fill in all fields.');
+      if (user.length < 3) return showError('Username must be at least 3 characters.');
+      if (pass.length < 6) return showError('Password must be at least 6 characters.');
+      if (pass !== confirm) return showError('Passwords do not match.');
+      const users = getUsers();
+      if (users[user]) return showError('Username already taken. Please log in.');
+      users[user] = { password: btoa(pass), data: {} };
+      localStorage.setItem('fau_users', JSON.stringify(users));
+      loginSuccess(user);
+    }
+
+    function loginSuccess(user) {
+      currentUser = user;
+      localStorage.setItem('fau_session', user);
+      document.getElementById('authOverlay').style.display = 'none';
+      document.getElementById('navUser').style.display = 'flex';
+      document.getElementById('navUsername').textContent = user;
+      document.getElementById('logoutBtn').style.display = 'flex';
+      loadData();
+      calculate();
+    }
+
+    function logout() {
+      saveData();
+      currentUser = null;
+      localStorage.removeItem('fau_session');
+      document.querySelectorAll('.calc-input').forEach(el => el.value = '');
+      document.getElementById('navUser').style.display = 'none';
+      document.getElementById('logoutBtn').style.display = 'none';
+      document.getElementById('loginUser').value = '';
+      document.getElementById('loginPass').value = '';
+      document.getElementById('authError').style.display = 'none';
+      switchTab('login');
+      document.getElementById('authOverlay').style.display = 'flex';
+      calculate();
+    }
+
+    /* ------ SAVE / LOAD ------ */
+    function saveData() {
+      if (!currentUser) return;
+      const users = getUsers();
+      const data = {};
+      document.querySelectorAll('.calc-input').forEach(el => {
+        if (el.value) data[el.id] = el.value;
+      });
+      data['__period'] = currentPeriod;
+
+      // Save custom fields
+      data['__custom_inc'] = [];
+      document.querySelectorAll('#customIncFields .custom-field-group').forEach(group => {
+        data['__custom_inc'].push({
+          label: group.querySelector('.custom-label-input').value,
+          value: group.querySelector('.custom-inc-input').value,
+        });
+      });
+      data['__custom_exp'] = [];
+      document.querySelectorAll('#customExpFields .custom-field-group').forEach(group => {
+        data['__custom_exp'].push({
+          label: group.querySelector('.custom-label-input').value,
+          value: group.querySelector('.custom-exp-input').value,
+        });
+      });
+
+      users[currentUser].data = data;
+      localStorage.setItem('fau_users', JSON.stringify(users));
+    }
+
+    function loadData() {
+      if (!currentUser) return;
+      const users = getUsers();
+      const data  = users[currentUser]?.data || {};
+
+      document.querySelectorAll('.calc-input:not(.custom-inc-input):not(.custom-exp-input)').forEach(el => {
+        el.value = data[el.id] || '';
+      });
+      if (data['__period']) setPeriod(data['__period']);
+
+      // Restore custom fields
+      document.getElementById('customIncFields').innerHTML = '';
+      document.getElementById('customExpFields').innerHTML = '';
+      customIncCounter = 0;
+      customExpCounter = 0;
+      (data['__custom_inc'] || []).forEach(f => addCustomField('inc', f.label, f.value));
+      (data['__custom_exp'] || []).forEach(f => addCustomField('exp', f.label, f.value));
+    }
+
+    /* ------ AUTO-SAVE on input ------ */
+    document.querySelectorAll('.calc-input').forEach(el => {
+      el.addEventListener('input', saveData);
+    });
+
+    /* ------ ENTER KEY on auth forms ------ */
+    ['loginUser', 'loginPass'].forEach(id => {
+      document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+    });
+    ['regUser', 'regPass', 'regPassConfirm'].forEach(id => {
+      document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') doRegister(); });
+    });
+
+    /* ------ CHECK SESSION ------ */
+    (function checkSession() {
+      const saved = localStorage.getItem('fau_session');
+      if (saved) {
+        const users = getUsers();
+        if (users[saved]) { loginSuccess(saved); return; }
+      }
+    })();
 
     /* ------ NAVBAR SCROLL SHADOW ------ */
     window.addEventListener('scroll', () => {
       document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 60);
     }, { passive: true });
 
-    /* ------ MOBILE MENU ------ */
-    const toggle = document.getElementById('navToggle');
-    const links  = document.getElementById('navLinks');
-    toggle.addEventListener('click', () => {
-      const open = links.classList.toggle('open');
-      toggle.setAttribute('aria-expanded', open);
-    });
-    links.querySelectorAll('.nav-link').forEach(l => {
-      l.addEventListener('click', () => {
-        links.classList.remove('open');
-        toggle.setAttribute('aria-expanded', false);
-      });
-    });
-    document.addEventListener('click', e => {
-      if (!toggle.contains(e.target) && !links.contains(e.target)) {
-        links.classList.remove('open');
-        toggle.setAttribute('aria-expanded', false);
-      }
-    });
 
     /* ------ FADE-UP ANIMATIONS ------ */
     if ('IntersectionObserver' in window) {
@@ -1398,6 +1881,95 @@
       document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
     } else {
       document.querySelectorAll('.fade-up').forEach(el => el.classList.add('visible'));
+    }
+
+    /* ------ EXPORT ------ */
+    const incomeFields = [
+      { id: 'inc-scholarship', label: 'Scholarships / Grants' },
+      { id: 'inc-aid',         label: 'Financial Aid (Loans)' },
+      { id: 'inc-family',      label: 'Family Support' },
+      { id: 'inc-job',         label: 'Part-Time Job' },
+      { id: 'inc-freelance',   label: 'Freelance / Side Hustle' },
+      { id: 'inc-gi',          label: 'GI Bill / Military Benefits' },
+      { id: 'inc-other',       label: 'Other Income' },
+    ];
+
+    const expenseLabels = {
+      'exp-rent':          'Rent / On-Campus Housing',
+      'exp-utilities':     'Utilities',
+      'exp-phone':         'Phone Plan',
+      'exp-food':          'Meal Plan / Groceries',
+      'exp-dining':        'Dining Out / Coffee',
+      'exp-books':         'Textbooks & Supplies',
+      'exp-tech':          'Technology / Software',
+      'exp-car':           'Car Payment / Insurance',
+      'exp-gas':           'Gas / Parking',
+      'exp-transit':       'Transit / Rideshare',
+      'exp-health':        'Health Insurance / Copays',
+      'exp-personal':      'Personal Care & Hygiene',
+      'exp-entertainment': 'Entertainment & Subscriptions',
+      'exp-clothing':      'Clothing & Shopping',
+      'exp-savings':       'Savings / Emergency Fund',
+      'exp-other':         'Other Expenses',
+    };
+
+    function exportBudget() {
+      const income   = parseFloat(document.getElementById('totalIncome').textContent.replace(/[$,]/g, '')) || 0;
+      const expenses = parseFloat(document.getElementById('totalExpenses').textContent.replace(/[$,]/g, '')) || 0;
+      const remaining = income - expenses;
+      const periodStr = { monthly: 'Monthly', semester: 'Per Semester', annual: 'Annual' }[currentPeriod];
+
+      // Header meta
+      document.getElementById('pv-meta').textContent =
+        (currentUser ? 'User: ' + currentUser + '  ·  ' : '') + periodStr + ' Budget';
+      document.getElementById('pv-date').textContent = 'Generated: ' + new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+
+      // Summary stats
+      document.getElementById('pv-income').textContent   = fmt(income);
+      document.getElementById('pv-expenses').textContent = fmt(expenses);
+      const remEl = document.getElementById('pv-remaining');
+      remEl.textContent = (remaining < 0 ? '-' : '') + fmt(Math.abs(remaining));
+      remEl.className = 'pv-stat-val ' + (remaining < 0 ? 'over' : 'remain');
+
+      // Income rows (static + custom)
+      const incRows = incomeFields.filter(f => parseFloat(document.getElementById(f.id)?.value) > 0);
+      const customIncRows = [];
+      document.querySelectorAll('#customIncFields .custom-field-group').forEach(group => {
+        const v = parseFloat(group.querySelector('.custom-inc-input')?.value) || 0;
+        if (v > 0) customIncRows.push({ label: group.querySelector('.custom-label-input').value.trim() || 'Custom Income', val: v });
+      });
+      const allIncRows = [
+        ...incRows.map(f => ({ label: f.label, val: parseFloat(document.getElementById(f.id).value) || 0 })),
+        ...customIncRows,
+      ];
+      document.getElementById('pv-income-rows').innerHTML = allIncRows.length ? `
+        <div class="pv-section-title">Income Sources</div>
+        ${allIncRows.map(r => `
+          <div class="pv-row">
+            <span class="pv-row-label">${r.label}</span>
+            <span class="pv-row-val">${fmt(r.val)}</span>
+          </div>`).join('')}` : '';
+
+      // Expense rows (static + custom)
+      const expRows = expCategories.filter(c => parseFloat(document.getElementById(c.id)?.value) > 0);
+      const customExpRows = [];
+      document.querySelectorAll('#customExpFields .custom-field-group').forEach(group => {
+        const v = parseFloat(group.querySelector('.custom-exp-input')?.value) || 0;
+        if (v > 0) customExpRows.push({ label: group.querySelector('.custom-label-input').value.trim() || 'Custom Expense', val: v });
+      });
+      const allExpRows = [
+        ...expRows.map(c => ({ label: expenseLabels[c.id] || c.label, val: parseFloat(document.getElementById(c.id).value) || 0 })),
+        ...customExpRows,
+      ];
+      document.getElementById('pv-expense-rows').innerHTML = allExpRows.length ? `
+        <div class="pv-section-title">Expenses</div>
+        ${allExpRows.map(r => `
+          <div class="pv-row">
+            <span class="pv-row-label">${r.label}</span>
+            <span class="pv-row-val">${fmt(r.val)}</span>
+          </div>`).join('')}` : '';
+
+      window.print();
     }
 
     /* ------ INIT ------ */
