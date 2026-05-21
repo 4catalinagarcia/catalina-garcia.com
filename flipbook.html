@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2847 Commonwealth Ave | Luxury Estate Listing</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #0a0a0a;
+      --dark: #111111;
+      --charcoal: #1c1c1c;
+      --gold: #c9a84c;
+      --gold-light: #e8c97a;
+      --white: #f5f3ee;
+      --cream: #ede9e0;
+      --gray: #888;
+      --page-w: 480px;
+      --page-h: 640px;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--black);
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* ── Shell ─────────────────────────────────────────── */
+    .shell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      gap: 32px;
+      padding: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      opacity: .55;
+      letter-spacing: .18em;
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+    .brand-dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--gold);
+    }
+
+    /* ── Book stage ────────────────────────────────────── */
+    .stage {
+      perspective: 2000px;
+      position: relative;
+    }
+
+    .book {
+      width: calc(var(--page-w) * 2);
+      height: var(--page-h);
+      position: relative;
+      transform-style: preserve-3d;
+    }
+
+    /* spine shadow */
+    .book::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 0; bottom: 0;
+      width: 8px;
+      transform: translateX(-50%);
+      background: linear-gradient(to right, rgba(0,0,0,.7), rgba(0,0,0,.1) 40%, rgba(0,0,0,.1) 60%, rgba(0,0,0,.7));
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    /* ── Spread (left + right page pair) ───────────────── */
+    .spread {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .spread.active { opacity: 1; pointer-events: auto; }
+
+    .page {
+      width: var(--page-w);
+      height: var(--page-h);
+      overflow: hidden;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    /* page curl shadows */
+    .page.left  { border-radius: 4px 0 0 4px; box-shadow: -4px 0 20px rgba(0,0,0,.6); }
+    .page.right { border-radius: 0 4px 4px 0; box-shadow:  4px 0 20px rgba(0,0,0,.6); }
+
+    /* ── Book-edge flip arrows ───────────────────────────── */
+    .book-edge-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 38px;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(8,8,8,.75);
+      border: 1px solid rgba(201,168,76,.22);
+      color: rgba(201,168,76,.65);
+      cursor: pointer;
+      z-index: 200;
+      transition: background .2s, color .2s, border-color .2s;
+      font-size: 15px;
+      backdrop-filter: blur(4px);
+    }
+    .book-edge-arrow:hover {
+      background: rgba(201,168,76,.18);
+      border-color: rgba(201,168,76,.6);
+      color: var(--gold);
+    }
+    .book-edge-arrow.left  { left: 0;  border-radius: 0 6px 6px 0; }
+    .book-edge-arrow.right { right: 0; border-radius: 6px 0 0 6px; }
+    .book-edge-arrow.hidden { opacity: 0; pointer-events: none; }
+
+    /* ── Page themes ────────────────────────────────────── */
+    .pg-cover {
+      background: var(--black);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 48px 40px;
+    }
+    .pg-cover .cover-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(160deg, #1a1409 0%, #0a0a0a 60%),
+        repeating-linear-gradient(
+          45deg,
+          transparent,
+          transparent 40px,
+          rgba(201,168,76,.03) 40px,
+          rgba(201,168,76,.03) 41px
+        );
+    }
+    .pg-cover .cover-accent {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+    .pg-cover .cover-number {
+      position: absolute;
+      top: 40px; right: 40px;
+      font-size: 80px;
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      color: rgba(201,168,76,.08);
+      line-height: 1;
+      letter-spacing: -.03em;
+    }
+
+    .pg-dark {
+      background: var(--charcoal);
+    }
+    .pg-cream {
+      background: var(--cream);
+      color: #1a1a1a;
+    }
+    .pg-gold {
+      background: var(--gold);
+      color: var(--black);
+    }
+    .pg-white {
+      background: #faf9f6;
+      color: #1a1a1a;
+    }
+    .pg-navy {
+      background: #0d1117;
+    }
+
+    /* ── Content helpers ─────────────────────────────────── */
+    .page-inner {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: 48px 40px;
+    }
+
+    .section-label {
+      font-size: 9px;
+      letter-spacing: .25em;
+      text-transform: uppercase;
+      font-weight: 600;
+      opacity: .55;
+      margin-bottom: 20px;
+    }
+
+    .page-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 34px;
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 24px;
+    }
+    .page-title em { font-style: italic; color: var(--gold); }
+
+    .divider {
+      width: 40px;
+      height: 1.5px;
+      background: var(--gold);
+      margin-bottom: 24px;
+    }
+    .divider.dark { background: #1a1a1a; }
+    .divider.full { width: 100%; opacity: .15; }
+
+    .body-text {
+      font-size: 13px;
+      line-height: 1.8;
+      opacity: .82;
+      font-weight: 300;
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 20px;
+    }
+    .tag {
+      padding: 5px 12px;
+      border: 1px solid rgba(201,168,76,.4);
+      border-radius: 2px;
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 500;
+    }
+    .tag.dark {
+      border-color: rgba(0,0,0,.25);
+      color: #3a2e10;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-top: 8px;
+    }
+    .stat-block {}
+    .stat-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--gold);
+      line-height: 1;
+    }
+    .stat-num.dark { color: #1a1a1a; }
+    .stat-label {
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      opacity: .6;
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
+    .skill-list {
+      list-style: none;
+      margin-top: 4px;
+    }
+    .skill-list li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      font-size: 12.5px;
+      font-weight: 400;
+    }
+    .skill-list li:last-child { border-bottom: none; }
+    .skill-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(201,168,76,.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: var(--gold);
+      flex-shrink: 0;
+    }
+    .skill-bar-wrap {
+      flex: 1;
+      height: 2px;
+      background: rgba(255,255,255,.1);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .skill-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold), var(--gold-light));
+      border-radius: 2px;
+    }
+
+    .project-card {
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 4px;
+      padding: 20px;
+      margin-bottom: 16px;
+      background: rgba(255,255,255,.03);
+    }
+    .project-card:last-child { margin-bottom: 0; }
+    .project-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .project-desc {
+      font-size: 12px;
+      line-height: 1.7;
+      opacity: .65;
+    }
+    .project-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      font-size: 10px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .timeline-item {
+      display: flex;
+      gap: 16px;
+      padding-bottom: 24px;
+      position: relative;
+    }
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: 11px;
+      top: 24px;
+      bottom: 0;
+      width: 1px;
+      background: rgba(255,255,255,.08);
+    }
+    .timeline-item:last-child::before { display: none; }
+    .timeline-dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 1.5px solid var(--gold);
+      background: var(--charcoal);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .timeline-dot-inner {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--gold);
+    }
+    .timeline-year {
+      font-size: 10px;
+      color: var(--gold);
+      letter-spacing: .1em;
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+    .timeline-title {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    .timeline-sub {
+      font-size: 11.5px;
+      opacity: .55;
+    }
+
+    /* contact page */
+    .contact-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(201,168,76,.15);
+      font-size: 12.5px;
+    }
+    .contact-row:last-child { border-bottom: none; }
+    .contact-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1px solid rgba(201,168,76,.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gold);
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+    .contact-val { opacity: .85; }
+
+    .back-cover-pattern {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(135deg, #0d0d0d 0%, #111 100%);
+      overflow: hidden;
+    }
+    .back-cover-pattern::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 24px,
+        rgba(201,168,76,.04) 24px,
+        rgba(201,168,76,.04) 25px
+      );
+    }
+
+    .page-num {
+      position: absolute;
+      bottom: 24px;
+      font-size: 10px;
+      letter-spacing: .15em;
+      opacity: .35;
+      font-weight: 500;
+    }
+    .page.left  .page-num { left: 40px; }
+    .page.right .page-num { right: 40px; }
+
+    /* ── Controls ────────────────────────────────────────── */
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+
+    .btn-nav {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.15);
+      background: rgba(255,255,255,.04);
+      color: var(--white);
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .2s, border-color .2s, transform .15s;
+    }
+    .btn-nav:hover {
+      background: rgba(201,168,76,.15);
+      border-color: var(--gold);
+      color: var(--gold);
+      transform: scale(1.08);
+    }
+    .btn-nav:disabled {
+      opacity: .22;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .dots {
+      display: flex;
+      gap: 8px;
+    }
+    .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.2);
+      cursor: pointer;
+      transition: background .2s, transform .2s;
+    }
+    .dot.active {
+      background: var(--gold);
+      transform: scale(1.3);
+    }
+
+    .page-counter {
+      font-size: 11px;
+      letter-spacing: .12em;
+      opacity: .4;
+      min-width: 44px;
+      text-align: center;
+    }
+
+    /* ── Intro / close animation ─────────────────────────── */
+    .book-shadow {
+      position: absolute;
+      bottom: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      height: 30px;
+      background: radial-gradient(ellipse, rgba(0,0,0,.6) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* ── Responsive ──────────────────────────────────────── */
+    @media (max-width: 1040px) {
+      :root { --page-w: 360px; --page-h: 500px; }
+      .page-title { font-size: 26px; }
+      .stat-num { font-size: 28px; }
+    }
+    @media (max-width: 780px) {
+      :root { --page-w: 300px; --page-h: 430px; }
+      .page-inner { padding: 32px 24px; }
+      .page-title { font-size: 22px; }
+      .body-text { font-size: 12px; }
+      .stat-grid { gap: 12px; }
+      .stat-num { font-size: 24px; }
+    }
+    @media (max-width: 630px) {
+      :root { --page-w: 240px; --page-h: 360px; }
+      .page-inner { padding: 24px 18px; }
+      .page-title { font-size: 18px; }
+      .body-text { font-size: 11px; }
+      .skill-list li { font-size: 11px; }
+      .contact-row { font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="shell">
+
+  <div class="brand">
+    <span>Exclusive Listing</span>
+    <div class="brand-dot"></div>
+    <span>2847 Commonwealth Ave</span>
+    <div class="brand-dot"></div>
+    <span>$4,250,000</span>
+  </div>
+
+  <div class="stage">
+    <div class="book" id="book">
+
+      <!-- ════════════════════════════════════════════════
+           SPREAD 0 — Branding panel + Cover photo
+      ════════════════════════════════════════════════ -->
+      <div class="spread active" data-spread="0">
+
+        <!-- LEFT: Agent / brokerage branding -->
+        <div class="page left" style="background:#0d0d0d;">
+          <div class="back-cover-pattern"></div>
+          <div class="page-inner" style="justify-content:space-between;position:relative;z-index:1;">
+            <div>
+              <div style="width:36px;height:2px;background:var(--gold);margin-bottom:28px;"></div>
+              <div style="font-size:9px;letter-spacing:.3em;text-transform:uppercase;opacity:.4;font-weight:500;margin-bottom:32px;">Exclusively Presented By</div>
+              <div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;line-height:1.2;margin-bottom:6px;">Catalina Garcia</div>
+              <div style="font-size:11px;letter-spacing:.1em;color:var(--gold);opacity:.85;margin-bottom:32px;">Luxury Property Specialist</div>
+              <div style="width:100%;height:1px;background:rgba(255,255,255,.07);margin-bottom:28px;"></div>
+              <div style="font-size:11.5px;line-height:1.85;opacity:.55;">
+                DRE #02184761<br>
+                South Florida, FL<br>
+                catalina-garcia.com
+              </div>
+            </div>
+            <div>
+              <div style="font-size:9px;letter-spacing:.28em;text-transform:uppercase;opacity:.2;margin-bottom:10px;">The Agency</div>
+              <div style="font-family:'Playfair Display',serif;font-size:42px;font-weight:700;color:rgba(201,168,76,.08);letter-spacing:-.03em;line-height:1;">CG</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Cover — full-bleed exterior photo -->
+        <div class="page right" style="background:#111;">
+          <div style="position:absolute;inset:0;background:url('assets/flipbook/1.jpg') center/cover no-repeat;"></div>
+          <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.82) 0%,rgba(0,0,0,.2) 55%,rgba(0,0,0,.1) 100%);"></div>
+          <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--gold),transparent);"></div>
+          <div class="page-inner" style="justify-content:flex-end;padding-bottom:44px;position:relative;z-index:1;">
+            <div style="font-size:9px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);opacity:.9;margin-bottom:14px;">Offered at $4,250,000</div>
+            <div style="font-family:'Playfair Display',serif;font-size:30px;font-weight:700;line-height:1.15;margin-bottom:10px;">
+              2847 Commonwealth<br>Avenue
+            </div>
+            <div style="font-size:11.5px;opacity:.6;letter-spacing:.05em;margin-bottom:20px;">Denver, Colorado 80205</div>
+            <div style="width:36px;height:1.5px;background:var(--gold);margin-bottom:20px;"></div>
+            <div style="display:flex;gap:20px;">
+              <div style="text-align:center;">
+                <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--gold);">6</div>
+                <div style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;opacity:.55;margin-top:2px;">Beds</div>
+              </div>
+              <div style="width:1px;background:rgba(255,255,255,.15);"></div>
+              <div style="text-align:center;">
+                <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--gold);">5.5</div>
+                <div style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;opacity:.55;margin-top:2px;">Baths</div>
+              </div>
+              <div style="width:1px;background:rgba(255,255,255,.15);"></div>
+              <div style="text-align:center;">
+                <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--gold);">8,400</div>
+                <div style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;opacity:.55;margin-top:2px;">Sq Ft</div>
+              </div>
+            </div>
+          </div>
+          <div class="page-num">01</div>
+        </div>
+
+      </div>
+
+      <!-- ════════════════════════════════════════════════
+           SPREAD 1 — Grand Foyer photo + Property details
+      ════════════════════════════════════════════════ -->
+      <div class="spread" data-spread="1">
+
+        <!-- LEFT: Full-bleed foyer photo -->
+        <div class="page left" style="background:#111;">
+          <div style="position:absolute;inset:0;background:url('assets/flipbook/2.jpg') center/cover no-repeat;"></div>
+          <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.75) 0%,rgba(0,0,0,.05) 50%);"></div>
+          <div class="page-inner" style="justify-content:flex-end;padding-bottom:36px;position:relative;z-index:1;">
+            <div style="font-size:9px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);opacity:.85;margin-bottom:8px;">Grand Entrance</div>
+            <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:600;line-height:1.3;">Mahogany &amp;<br>Leaded Glass Foyer</div>
+          </div>
+          <div class="page-num">02</div>
+        </div>
+
+        <!-- RIGHT: Property details -->
+        <div class="page right" style="background:#f7f4ef;color:#1a1a1a;">
+          <div class="page-inner">
+            <div style="font-size:9px;letter-spacing:.28em;text-transform:uppercase;color:#999;margin-bottom:20px;">Property Details</div>
+            <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:700;line-height:1.2;margin-bottom:6px;color:#111;">Historic <em style="color:#8a6820;">Edwardian</em><br>Estate · Est. 1904</div>
+            <div style="width:36px;height:1.5px;background:#c9a84c;margin:18px 0;"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px 12px;margin-bottom:24px;">
+              <div>
+                <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#aaa;margin-bottom:4px;">Bedrooms</div>
+                <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:#111;">6</div>
+              </div>
+              <div>
+                <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#aaa;margin-bottom:4px;">Bathrooms</div>
+                <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:#111;">5.5</div>
+              </div>
+              <div>
+                <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#aaa;margin-bottom:4px;">Living Area</div>
+                <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:#111;">8,400<span style="font-size:13px;font-weight:400;"> sf</span></div>
+              </div>
+              <div>
+                <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#aaa;margin-bottom:4px;">Lot Size</div>
+                <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:#111;">0.52<span style="font-size:13px;font-weight:400;"> ac</span></div>
+              </div>
+              <div>
+                <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#aaa;margin-bottom:4px;">Year Built</div>
+                <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:#111;">1904</div>
+              </div>
+              <div>
+                <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#aaa;margin-bottom:4px;">Garage</div>
+                <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:#111;">3<span style="font-size:13px;font-weight:400;"> car</span></div>
+              </div>
+            </div>
+            <div style="width:100%;height:1px;background:rgba(0,0,0,.08);margin-bottom:18px;"></div>
+            <div style="font-size:11.5px;line-height:1.8;color:#555;">
+              A singular masterpiece of Edwardian architecture, meticulously restored to preserve its original grandeur while seamlessly integrating modern luxury throughout.
+            </div>
+          </div>
+          <div class="page-num" style="color:#ccc;">03</div>
+        </div>
+
+      </div>
+
+      <!-- ════════════════════════════════════════════════
+           SPREAD 2 — Dining room + Kitchen photos
+      ════════════════════════════════════════════════ -->
+      <div class="spread" data-spread="2">
+
+        <!-- LEFT: Full-bleed dining room -->
+        <div class="page left" style="background:#111;">
+          <div style="position:absolute;inset:0;background:url('assets/flipbook/3.jpg') center/cover no-repeat;"></div>
+          <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.72) 0%,rgba(0,0,0,.04) 45%);"></div>
+          <div class="page-inner" style="justify-content:flex-end;padding-bottom:36px;position:relative;z-index:1;">
+            <div style="font-size:9px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);opacity:.85;margin-bottom:8px;">Formal Dining</div>
+            <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:600;line-height:1.3;">Chandelier &amp; Fireplace<br>Dining Room</div>
+          </div>
+          <div class="page-num">04</div>
+        </div>
+
+        <!-- RIGHT: Full-bleed kitchen -->
+        <div class="page right" style="background:#111;">
+          <div style="position:absolute;inset:0;background:url('assets/flipbook/4.jpg') center/cover no-repeat;"></div>
+          <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.72) 0%,rgba(0,0,0,.04) 45%);"></div>
+          <div class="page-inner" style="justify-content:flex-end;padding-bottom:36px;position:relative;z-index:1;">
+            <div style="font-size:9px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);opacity:.85;margin-bottom:8px;">Chef's Kitchen</div>
+            <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:600;line-height:1.3;">Custom Mahogany<br>Cabinetry &amp; Island</div>
+          </div>
+          <div class="page-num">05</div>
+        </div>
+
+      </div>
+
+      <!-- ════════════════════════════════════════════════
+           SPREAD 3 — Features list + Exterior detail
+      ════════════════════════════════════════════════ -->
+      <div class="spread" data-spread="3">
+
+        <!-- LEFT: Features & finishes -->
+        <div class="page left" style="background:#111;">
+          <div class="page-inner">
+            <div style="font-size:9px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);opacity:.8;margin-bottom:20px;">Interior Highlights</div>
+            <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:700;line-height:1.2;margin-bottom:20px;">Crafted for<br><em>Refined</em> Living</div>
+            <div style="width:36px;height:1.5px;background:var(--gold);margin-bottom:24px;"></div>
+            <div style="display:flex;flex-direction:column;gap:0;">
+              <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.06);">
+                <div style="width:5px;height:5px;border-radius:50%;background:var(--gold);flex-shrink:0;"></div>
+                <span style="font-size:12.5px;opacity:.8;">Original mahogany millwork &amp; wainscoting</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.06);">
+                <div style="width:5px;height:5px;border-radius:50%;background:var(--gold);flex-shrink:0;"></div>
+                <span style="font-size:12.5px;opacity:.8;">Leaded &amp; stained glass throughout</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.06);">
+                <div style="width:5px;height:5px;border-radius:50%;background:var(--gold);flex-shrink:0;"></div>
+                <span style="font-size:12.5px;opacity:.8;">Five original fireplaces, fully restored</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.06);">
+                <div style="width:5px;height:5px;border-radius:50%;background:var(--gold);flex-shrink:0;"></div>
+                <span style="font-size:12.5px;opacity:.8;">Brazilian cherry hardwood floors</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.06);">
+                <div style="width:5px;height:5px;border-radius:50%;background:var(--gold);flex-shrink:0;"></div>
+                <span style="font-size:12.5px;opacity:.8;">Chef's kitchen with granite &amp; center island</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.06);">
+                <div style="width:5px;height:5px;border-radius:50%;background:var(--gold);flex-shrink:0;"></div>
+                <span style="font-size:12.5px;opacity:.8;">Temperature-controlled wine cellar</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.06);">
+                <div style="width:5px;height:5px;border-radius:50%;background:var(--gold);flex-shrink:0;"></div>
+                <span style="font-size:12.5px;opacity:.8;">Primary suite with private terrace</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;padding:12px 0;">
+                <div style="width:5px;height:5px;border-radius:50%;background:var(--gold);flex-shrink:0;"></div>
+                <span style="font-size:12.5px;opacity:.8;">Carriage house &amp; 3-car garage</span>
+              </div>
+            </div>
+          </div>
+          <div class="page-num">06</div>
+        </div>
+
+        <!-- RIGHT: Exterior photo with overlay stats -->
+        <div class="page right" style="background:#111;">
+          <div style="position:absolute;inset:0;background:url('assets/flipbook/1.jpg') center top/cover no-repeat;"></div>
+          <div style="position:absolute;inset:0;background:linear-gradient(160deg,rgba(0,0,0,.55) 0%,rgba(0,0,0,.2) 60%,rgba(0,0,0,.6) 100%);"></div>
+          <div class="page-inner" style="justify-content:space-between;position:relative;z-index:1;">
+            <div>
+              <div style="font-size:9px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);opacity:.85;margin-bottom:10px;">Exterior</div>
+              <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:600;line-height:1.35;">Arched Colonnades<br>&amp; Wraparound Porch</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div style="background:rgba(0,0,0,.55);border:1px solid rgba(201,168,76,.25);border-radius:3px;padding:12px 16px;backdrop-filter:blur(6px);">
+                <div style="font-size:9px;letter-spacing:.2em;text-transform:uppercase;opacity:.5;margin-bottom:4px;">Neighborhood</div>
+                <div style="font-size:13px;font-weight:600;">Curtis Park Historic District</div>
+              </div>
+              <div style="background:rgba(0,0,0,.55);border:1px solid rgba(201,168,76,.25);border-radius:3px;padding:12px 16px;backdrop-filter:blur(6px);">
+                <div style="font-size:9px;letter-spacing:.2em;text-transform:uppercase;opacity:.5;margin-bottom:4px;">Walk Score</div>
+                <div style="font-size:13px;font-weight:600;">91 &nbsp;·&nbsp; Walker's Paradise</div>
+              </div>
+              <div style="background:rgba(0,0,0,.55);border:1px solid rgba(201,168,76,.25);border-radius:3px;padding:12px 16px;backdrop-filter:blur(6px);">
+                <div style="font-size:9px;letter-spacing:.2em;text-transform:uppercase;opacity:.5;margin-bottom:4px;">Schools</div>
+                <div style="font-size:13px;font-weight:600;">Top-rated Denver USD</div>
+              </div>
+            </div>
+          </div>
+          <div class="page-num">07</div>
+        </div>
+
+      </div>
+
+      <!-- ════════════════════════════════════════════════
+           SPREAD 4 — Description + Quote
+      ════════════════════════════════════════════════ -->
+      <div class="spread" data-spread="4">
+
+        <!-- LEFT: Property description -->
+        <div class="page left" style="background:#f7f4ef;color:#1a1a1a;">
+          <div class="page-inner">
+            <div style="font-size:9px;letter-spacing:.28em;text-transform:uppercase;color:#aaa;margin-bottom:20px;">About This Home</div>
+            <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:700;line-height:1.2;color:#111;margin-bottom:20px;">A Century of<br><em style="color:#8a6820;">Elegance</em></div>
+            <div style="width:36px;height:1.5px;background:#c9a84c;margin-bottom:24px;"></div>
+            <p style="font-size:12.5px;line-height:1.85;color:#444;margin-bottom:18px;">
+              Step through the leaded glass doors and into over a century of history. This extraordinary Edwardian estate stands as one of Denver's finest surviving examples of early 20th-century residential architecture.
+            </p>
+            <p style="font-size:12.5px;line-height:1.85;color:#444;margin-bottom:18px;">
+              Soaring ceilings, hand-carved mahogany details, and original tile fireplaces tell the story of an era when craftsmanship was art. A top-to-bottom restoration brings it all into the present without sacrificing an ounce of soul.
+            </p>
+            <p style="font-size:12.5px;line-height:1.85;color:#444;">
+              The kitchen and primary suite have been reimagined for today's lifestyle — professional-grade appliances, heated floors, a spa bath — while the formal rooms remain breathtakingly intact.
+            </p>
+          </div>
+          <div class="page-num" style="color:#ccc;">08</div>
+        </div>
+
+        <!-- RIGHT: Pull quote over exterior -->
+        <div class="page right" style="background:#111;">
+          <div style="position:absolute;inset:0;background:url('assets/flipbook/2.jpg') center/cover no-repeat;"></div>
+          <div style="position:absolute;inset:0;background:rgba(0,0,0,.72);"></div>
+          <div class="page-inner" style="justify-content:center;align-items:center;text-align:center;position:relative;z-index:1;">
+            <div style="font-size:60px;font-family:'Playfair Display',serif;color:rgba(201,168,76,.18);line-height:.8;margin-bottom:20px;">"</div>
+            <p style="font-family:'Playfair Display',serif;font-style:italic;font-size:19px;line-height:1.65;max-width:340px;margin-bottom:22px;opacity:.92;">
+              Homes like this are not built anymore. They are only discovered.
+            </p>
+            <div style="width:36px;height:1.5px;background:var(--gold);margin:0 auto 16px;"></div>
+            <div style="font-size:9px;letter-spacing:.22em;text-transform:uppercase;opacity:.4;">Architectural Digest</div>
+          </div>
+          <div class="page-num">09</div>
+        </div>
+
+      </div>
+
+      <!-- ════════════════════════════════════════════════
+           SPREAD 5 — Agent contact + Back cover
+      ════════════════════════════════════════════════ -->
+      <div class="spread" data-spread="5">
+
+        <!-- LEFT: Agent contact card -->
+        <div class="page left" style="background:#111;">
+          <div class="page-inner" style="justify-content:space-between;">
+            <div>
+              <div style="font-size:9px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);opacity:.8;margin-bottom:20px;">Schedule a Showing</div>
+              <div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;line-height:1.2;margin-bottom:4px;">Catalina Garcia</div>
+              <div style="font-size:11px;letter-spacing:.1em;color:var(--gold);margin-bottom:24px;">Luxury Property Specialist</div>
+              <div style="width:36px;height:1.5px;background:rgba(255,255,255,.12);margin-bottom:24px;"></div>
+              <div style="display:flex;flex-direction:column;gap:0;">
+                <div class="contact-row">
+                  <div class="contact-icon"><i class="fas fa-phone"></i></div>
+                  <div class="contact-val">(305) 555-0192</div>
+                </div>
+                <div class="contact-row">
+                  <div class="contact-icon"><i class="fas fa-envelope"></i></div>
+                  <div class="contact-val">catalina@catalina-garcia.com</div>
+                </div>
+                <div class="contact-row">
+                  <div class="contact-icon"><i class="fas fa-globe"></i></div>
+                  <div class="contact-val">catalina-garcia.com</div>
+                </div>
+                <div class="contact-row">
+                  <div class="contact-icon"><i class="fas fa-map-marker-alt"></i></div>
+                  <div class="contact-val">South Florida, FL</div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div style="width:100%;height:1px;background:rgba(255,255,255,.06);margin-bottom:18px;"></div>
+              <div style="font-size:10px;line-height:1.8;opacity:.3;">
+                Information deemed reliable but not guaranteed. Subject to errors, omissions, change of price, or withdrawal without notice.
+              </div>
+            </div>
+          </div>
+          <div class="page-num">10</div>
+        </div>
+
+        <!-- RIGHT: Back cover — full-bleed exterior -->
+        <div class="page right" style="background:#111;">
+          <div style="position:absolute;inset:0;background:url('assets/flipbook/1.jpg') center/cover no-repeat;"></div>
+          <div style="position:absolute;inset:0;background:rgba(0,0,0,.55);"></div>
+          <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--gold),transparent);"></div>
+          <div class="page-inner" style="justify-content:center;align-items:center;text-align:center;position:relative;z-index:1;">
+            <div style="font-size:9px;letter-spacing:.35em;text-transform:uppercase;opacity:.5;margin-bottom:16px;">Luxury Estate Collection</div>
+            <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:600;line-height:1.4;margin-bottom:16px;">2847 Commonwealth Ave<br>Denver, CO 80205</div>
+            <div style="width:36px;height:1.5px;background:var(--gold);margin:0 auto 16px;"></div>
+            <div style="font-size:18px;font-family:'Playfair Display',serif;font-weight:700;color:var(--gold);">$4,250,000</div>
+          </div>
+        </div>
+
+      </div>
+
+    </div><!-- /book -->
+    <div class="book-shadow"></div>
+    <div class="book-edge-arrow left hidden" id="edgeLeft"><i class="fas fa-chevron-left"></i></div>
+    <div class="book-edge-arrow right" id="edgeRight"><i class="fas fa-chevron-right"></i></div>
+  </div><!-- /stage -->
+
+  <!-- Controls -->
+  <div class="controls">
+    <button class="btn-nav" id="btnPrev" disabled aria-label="Previous"><i class="fas fa-chevron-left"></i></button>
+    <div class="dots" id="dots"></div>
+    <div class="page-counter" id="counter">1 / 6</div>
+    <button class="btn-nav" id="btnNext" aria-label="Next"><i class="fas fa-chevron-right"></i></button>
+  </div>
+
+</div><!-- /shell -->
+
+<script>
+  const spreads  = document.querySelectorAll('.spread');
+  const btnPrev  = document.getElementById('btnPrev');
+  const btnNext  = document.getElementById('btnNext');
+  const edgeLeft = document.getElementById('edgeLeft');
+  const edgeRight= document.getElementById('edgeRight');
+  const dotsEl   = document.getElementById('dots');
+  const counter  = document.getElementById('counter');
+  const total    = spreads.length;
+  let current    = 0;
+  let animating  = false;
+
+  /* ── Build dots ── */
+  spreads.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.addEventListener('click', () => goTo(i));
+    dotsEl.appendChild(d);
+  });
+
+  function updateUI() {
+    dotsEl.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === current));
+    counter.textContent = (current + 1) + ' / ' + total;
+    btnPrev.disabled = current === 0;
+    btnNext.disabled = current === total - 1;
+    edgeLeft.classList.toggle('hidden',  current === 0);
+    edgeRight.classList.toggle('hidden', current === total - 1);
+  }
+
+  const FLIP_MS = 600;
+
+  function goTo(target) {
+    if (animating || target === current || target < 0 || target >= total) return;
+    animating = true;
+
+    const dir   = target > current ? 'fwd' : 'back';
+    const from  = spreads[current];
+    const to    = spreads[target];
+    const book  = document.getElementById('book');
+    const halfW = book.offsetWidth / 2;
+    const h     = book.offsetHeight;
+
+    /* Page that physically flips, and the page revealed on its back */
+    const flippingEl = from.querySelector(dir === 'fwd' ? '.page.right' : '.page.left');
+    const revealedEl = to.querySelector(  dir === 'fwd' ? '.page.left'  : '.page.right');
+
+    /* Clone both pages */
+    const frontClone = flippingEl.cloneNode(true);
+    const backClone  = revealedEl.cloneNode(true);
+
+    /* Kill every CSS transition inside the clones so nothing bubbles up */
+    [frontClone, backClone].forEach(root => {
+      root.style.transition = 'none';
+      root.querySelectorAll('*').forEach(el => (el.style.transition = 'none'));
+    });
+
+    /* ── Build the 3-D flip layer ──
+       No z-index/opacity tricks on the real spreads — the layer's front clone
+       sits pixel-perfect over the real page so there is nothing to hide or
+       reveal on the underlying spreads until the swap fires. */
+    const layer = document.createElement('div');
+    layer.style.cssText = [
+      'position:absolute', 'top:0',
+      'width:' + halfW + 'px', 'height:' + h + 'px',
+      'transform-style:preserve-3d',
+      'z-index:10', 'pointer-events:none',
+      dir === 'fwd'
+        ? 'left:' + halfW + 'px;transform-origin:left center'
+        : 'left:0;transform-origin:right center'
+    ].join(';');
+
+    /* Front face — clone of the page being flipped */
+    const front = document.createElement('div');
+    front.style.cssText = 'position:absolute;inset:0;backface-visibility:hidden;overflow:hidden;';
+    frontClone.style.cssText += ';width:100%;height:100%;';
+    front.appendChild(frontClone);
+
+    /* Spine-edge shadow */
+    const shadow = document.createElement('div');
+    shadow.style.cssText = 'position:absolute;inset:0;pointer-events:none;backface-visibility:hidden;' +
+      'background:linear-gradient(' + (dir === 'fwd' ? 'to left' : 'to right') +
+      ',rgba(0,0,0,.45) 0%,transparent 65%);';
+    front.appendChild(shadow);
+
+    /* Back face — clone of the incoming page */
+    const back = document.createElement('div');
+    back.style.cssText = 'position:absolute;inset:0;backface-visibility:hidden;transform:rotateY(180deg);overflow:hidden;';
+    backClone.style.cssText += ';width:100%;height:100%;';
+    back.appendChild(backClone);
+
+    layer.appendChild(front);
+    layer.appendChild(back);
+    book.appendChild(layer);
+
+    /* Start the flip */
+    void layer.offsetWidth;
+    layer.style.transition = 'transform ' + FLIP_MS + 'ms cubic-bezier(.645,.045,.355,1)';
+    layer.style.transform  = dir === 'fwd' ? 'rotateY(-180deg)' : 'rotateY(180deg)';
+
+    /* setTimeout is immune to child transitionend bubbling */
+    setTimeout(() => {
+      layer.remove();
+      from.classList.remove('active');
+      to.classList.add('active');
+      current = target;
+      updateUI();
+      animating = false;
+    }, FLIP_MS);
+  }
+
+  /* ── Button & edge-arrow handlers ── */
+  btnPrev.addEventListener('click',   () => goTo(current - 1));
+  btnNext.addEventListener('click',   () => goTo(current + 1));
+  edgeLeft.addEventListener('click',  () => goTo(current - 1));
+  edgeRight.addEventListener('click', () => goTo(current + 1));
+
+  /* Keyboard */
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') goTo(current + 1);
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   goTo(current - 1);
+  });
+
+  /* Swipe */
+  let touchX = null;
+  document.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; }, { passive: true });
+  document.addEventListener('touchend', e => {
+    if (touchX === null) return;
+    const dx = e.changedTouches[0].clientX - touchX;
+    if (Math.abs(dx) > 50) dx < 0 ? goTo(current + 1) : goTo(current - 1);
+    touchX = null;
+  }, { passive: true });
+
+  updateUI();
+</script>
+</body>
+</html>
