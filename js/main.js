@@ -155,4 +155,28 @@
         if (e.key === 'Escape') { closeLightbox(); }
     });
 
+    /* ----------------------------------------------------------
+       Unique visitor counter — increments once per browser
+       (localStorage flag), later visits just read the count.
+    ---------------------------------------------------------- */
+    (function () {
+        var el = document.getElementById('visitor-count');
+        if (!el) { return; }
+
+        var NS  = 'catalina-garcia-com';
+        var KEY = 'unique-visitors';
+        var alreadyCounted = localStorage.getItem('cg_uv_counted');
+        var endpoint = alreadyCounted
+            ? 'https://abacus.jasoncameron.dev/get/' + NS + '/' + KEY
+            : 'https://abacus.jasoncameron.dev/hit/' + NS + '/' + KEY;
+
+        fetch(endpoint)
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                if (!alreadyCounted) { localStorage.setItem('cg_uv_counted', '1'); }
+                el.textContent = data.value.toLocaleString();
+            })
+            .catch(function () { el.textContent = '—'; });
+    }());
+
 }());

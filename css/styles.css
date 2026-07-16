@@ -1238,6 +1238,25 @@ h4          { font-family: var(--font-body);    line-height: 1.3; }
     color: rgba(255,255,255,0.3);
 }
 
+.footer-counter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.76rem;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 0.3px;
+}
+.footer-counter-label {
+    text-transform: uppercase;
+    font-size: 0.68rem;
+    letter-spacing: 1px;
+}
+.footer-counter-value {
+    font-family: var(--font-heading);
+    color: var(--gold);
+    font-size: 0.85rem;
+}
+
 /* ============================================================
    SCROLL ANIMATION
    ============================================================ */

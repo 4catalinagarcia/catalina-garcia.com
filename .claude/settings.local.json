@@ -3,7 +3,18 @@
     "allow": [
       "Bash(awk '{print $NF}')",
       "Bash(xargs -I{} sh -c 'echo \"=== {} ===\"; head -5 \"{}\" 2>/dev/null')",
-      "WebFetch(domain:www.compass.com)"
+      "WebFetch(domain:www.compass.com)",
+      "Bash(python3)",
+      "Bash(python3 -c \"import openpyxl; print\\('openpyxl available'\\)\")",
+      "Bash(python -c \"import openpyxl; print\\('openpyxl available'\\)\")",
+      "Bash(pip install *)",
+      "PowerShell(python \"C:\\\\Users\\\\4cata\\\\AppData\\\\Roaming\\\\Claude\\\\local-agent-mode-sessions\\\\skills-plugin\\\\8211d65c-d3ad-4890-b9e7-4ce88a60d97b\\\\3ff1bb4d-5912-4abe-8c9c-8313529a6ff5\\\\skills\\\\xlsx\\\\create_crosswalk.py\" 2>&1)",
+      "Bash(python3 -c \"import openpyxl; wb = openpyxl.load_workbook\\('SQL_Crosswalk.xlsx'\\); print\\([s for s in wb.sheetnames]\\)\")",
+      "Bash(python3 add_voucher_sheet.py)",
+      "Bash(python3 -c ' *)",
+      "Bash(python3 -)",
+      "PowerShell(Get-Process | Where-Object { $_.Name -match \"excel|EXCEL|libreoffice|soffice\" } | Select-Object Name, Id, MainWindowTitle)",
+      "Bash(python3 add_sheets.py)"
     ]
   }
 }
