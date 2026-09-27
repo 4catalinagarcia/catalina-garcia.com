@@ -263,7 +263,7 @@
     <section class="tiles" aria-label="Session summary">
       <div class="tile"><div class="lbl">Bankroll</div><div class="val" id="tBank">$0</div><div class="sub" id="tBuyIn">Buy-in $0</div></div>
       <div class="tile"><div class="lbl">Session net</div><div class="val" id="tNet">$0</div><div class="sub" id="tWagered">Wagered $0</div></div>
-      <div class="tile"><div class="lbl">Hands</div><div class="val" id="tHands">0</div><div class="sub" id="tWLP">Won 0 · Lost 0 · Push (ties) 0</div></div>
+      <div class="tile"><div class="lbl">Hands</div><div class="val" id="tHands">0</div><div class="sub" id="tWLP" title="No-qualify: the dealer had less than Queen high, so your Ante won and your Play bet was returned. Push: an exact tie.">Won 0 (0 no-qualify) · Lost 0 · Push 0</div></div>
       <div class="tile"><div class="lbl">Folds</div><div class="val" id="tFolds">0</div><div class="sub">Ante &amp; Pair Plus forfeited</div></div>
       <div class="tile"><div class="lbl">Strategy accuracy</div><div class="val" id="tAcc">—</div><div class="sub" id="tAccSub">vs. the Q-6-4 rule</div></div>
     </section>
@@ -592,7 +592,7 @@
         buyIn, bankroll: buyIn - 15, phase: 'bet',
         bets: { ante: 10, pp: 5, six: 0, play: 0 }, // a ready-to-deal example bet
         pc: [], dc: [], last: null, lastBets: null, history: [],
-        stats: { hands: 0, won: 0, lost: 0, push: 0, folds: 0, correct: 0, wagered: 0 },
+        stats: { hands: 0, won: 0, lost: 0, push: 0, noQual: 0, folds: 0, correct: 0, wagered: 0 },
         settings: { hint: true, pp: 'A', sound: true }
       };
     }
@@ -684,6 +684,7 @@
       if (optimal === play) st.correct++;
       if (res.outcome === 'fold') st.folds++;
       else st[res.outcome === 'win' ? 'won' : res.outcome === 'lose' ? 'lost' : 'push']++;
+      if (play && !res.qual) st.noQual++;
 
       S.last = {
         n: st.hands, pc: S.pc, dc: S.dc, play, optimal, net, bankroll: S.bankroll,
@@ -715,7 +716,7 @@
       tNet.textContent = signed(net); tNet.className = 'val ' + cls(net);
       document.getElementById('tWagered').textContent = 'Wagered ' + fmt(st.wagered);
       document.getElementById('tHands').textContent = st.hands.toLocaleString();
-      document.getElementById('tWLP').textContent = 'Won ' + st.won + ' · Lost ' + st.lost + ' · Push (ties) ' + st.push;
+      document.getElementById('tWLP').textContent = 'Won ' + st.won + ' (' + st.noQual + ' no-qualify) · Lost ' + st.lost + ' · Push ' + st.push;
       document.getElementById('tFolds').textContent = st.folds;
       document.getElementById('tAcc').textContent = st.hands ? pct(st.correct / st.hands, 0) : '—';
       document.getElementById('tAccSub').textContent = st.hands ? st.correct + ' of ' + st.hands + ' decisions match Q-6-4' : 'vs. the Q-6-4 rule';
