@@ -263,7 +263,7 @@
     <section class="tiles" aria-label="Session summary">
       <div class="tile"><div class="lbl">Bankroll</div><div class="val" id="tBank">$0</div><div class="sub" id="tBuyIn">Buy-in $0</div></div>
       <div class="tile"><div class="lbl">Session net</div><div class="val" id="tNet">$0</div><div class="sub" id="tWagered">Wagered $0</div></div>
-      <div class="tile"><div class="lbl">Hands</div><div class="val" id="tHands">0</div><div class="sub" id="tWLP">Won 0 · Lost 0 · Push 0</div></div>
+      <div class="tile"><div class="lbl">Hands</div><div class="val" id="tHands">0</div><div class="sub" id="tWLP">Won 0 · Lost 0 · Push (ties) 0</div></div>
       <div class="tile"><div class="lbl">Folds</div><div class="val" id="tFolds">0</div><div class="sub">Ante &amp; Pair Plus forfeited</div></div>
       <div class="tile"><div class="lbl">Strategy accuracy</div><div class="val" id="tAcc">—</div><div class="sub" id="tAccSub">vs. the Q-6-4 rule</div></div>
     </section>
@@ -715,7 +715,7 @@
       tNet.textContent = signed(net); tNet.className = 'val ' + cls(net);
       document.getElementById('tWagered').textContent = 'Wagered ' + fmt(st.wagered);
       document.getElementById('tHands').textContent = st.hands.toLocaleString();
-      document.getElementById('tWLP').textContent = 'Won ' + st.won + ' · Lost ' + st.lost + ' · Push ' + st.push;
+      document.getElementById('tWLP').textContent = 'Won ' + st.won + ' · Lost ' + st.lost + ' · Push (ties) ' + st.push;
       document.getElementById('tFolds').textContent = st.folds;
       document.getElementById('tAcc').textContent = st.hands ? pct(st.correct / st.hands, 0) : '—';
       document.getElementById('tAccSub').textContent = st.hands ? st.correct + ' of ' + st.hands + ' decisions match Q-6-4' : 'vs. the Q-6-4 rule';
