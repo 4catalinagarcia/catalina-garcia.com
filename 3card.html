@@ -343,6 +343,7 @@
         <section class="card-box settings">
           <h2>Session &amp; rules</h2>
           <label><input type="checkbox" id="setHint"> Show strategy coach</label>
+          <label><input type="checkbox" id="setSound"> Ding when I'm dealt a pair or better</label>
           <label>Pair Plus paytable
             <select class="field" id="setPP">
               <option value="A">40-30-6-4-1 (flush pays 4)</option>
@@ -592,7 +593,7 @@
         bets: { ante: 10, pp: 5, six: 0, play: 0 }, // a ready-to-deal example bet
         pc: [], dc: [], last: null, lastBets: null, history: [],
         stats: { hands: 0, won: 0, lost: 0, push: 0, folds: 0, correct: 0, wagered: 0 },
-        settings: { hint: true, pp: 'A' }
+        settings: { hint: true, pp: 'A', sound: true }
       };
     }
     function load() {
@@ -639,8 +640,35 @@
       const cards = draw(6);
       S.pc = cards.slice(0, 3); S.dc = cards.slice(3);
       S.phase = 'decide';
+      const pev = eval3(S.pc[0], S.pc[1], S.pc[2]);
+      if (pev.cat > 0) ding(pev.cat);
       save(); render();
     }
+    // Bell-like ding synthesized with Web Audio: one note for a pair,
+    // two for a flush or straight, a rising three-note chime for trips or a straight flush.
+    let audioCtx = null;
+    function ding(cat) {
+      if (!S.settings.sound) return;
+      try {
+        audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const notes = cat >= 4 ? [1318.5, 1568, 2093] : cat >= 2 ? [1318.5, 1760] : [1318.5];
+        const start = audioCtx.currentTime + 0.25; // land as the cards finish dealing
+        notes.forEach((f, i) => {
+          const t = start + i * 0.12;
+          [[f, 0.22, 1.4], [f * 2.76, 0.05, 0.5]].forEach(([freq, peak, len]) => {
+            const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+            o.type = 'sine'; o.frequency.value = freq;
+            g.gain.setValueAtTime(0.0001, t);
+            g.gain.exponentialRampToValueAtTime(peak, t + 0.008);
+            g.gain.exponentialRampToValueAtTime(0.0001, t + len);
+            o.connect(g); g.connect(audioCtx.destination);
+            o.start(t); o.stop(t + len + 0.05);
+          });
+        });
+      } catch (e) { /* audio unavailable */ }
+    }
+
     function decide(play) {
       if (S.phase !== 'decide') return;
       if (play) {
@@ -763,6 +791,7 @@
       }
 
       document.getElementById('setHint').checked = S.settings.hint;
+      document.getElementById('setSound').checked = S.settings.sound;
       document.getElementById('setPP').value = S.settings.pp;
       document.querySelectorAll('.chip-btn').forEach(b => b.classList.toggle('sel', +b.dataset.chip === chip));
 
@@ -986,6 +1015,7 @@
       else if (k === 'f') decide(false);
     });
     document.getElementById('setHint').addEventListener('change', e => { S.settings.hint = e.target.checked; save(); render(); });
+    document.getElementById('setSound').addEventListener('change', e => { S.settings.sound = e.target.checked; save(); render(); if (e.target.checked) ding(1); });
     document.getElementById('setPP').addEventListener('change', e => { S.settings.pp = e.target.value; save(); render(); });
     document.getElementById('rebuyBtn').addEventListener('click', () => {
       const el = document.getElementById('rebuyAmt'), v = Math.floor(+el.value);
